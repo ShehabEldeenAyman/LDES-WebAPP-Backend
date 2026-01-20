@@ -57,21 +57,53 @@ export function getStore() {
   return store;
 }
 
-export async function ingestToGraphDB(serverUrl, repositoryId) {
-  try {
-    console.log(`Exporting Oxigraph data to GraphDB repository: ${repositoryId}...`);
+// export async function ingestToGraphDB(serverUrl, repositoryId) {
+//   try {
+//     console.log(`Exporting Oxigraph data to GraphDB repository: ${repositoryId}...`);
 
-    // 1. Serialize Oxigraph store to N-Quads or N-Triples format
-    // GraphDB supports these formats for batch loading
+//     // 1. Serialize Oxigraph store to N-Quads or N-Triples format
+//     // GraphDB supports these formats for batch loading
+//     const nQuadsData = store.dump("application/n-quads");
+
+//     // 2. Construct the GraphDB Graph Store endpoint URL
+//     // This endpoint is used for adding/replacing RDF data
+//     const endpoint = `${serverUrl}/repositories/${repositoryId}/statements`;
+
+//     // 3. POST the data to GraphDB
+//     const response = await fetch(endpoint, {
+//       method: "POST", // Use POST to append data, or PUT to replace everything
+//       headers: {
+//         "Content-Type": "application/n-quads",
+//       },
+//       body: nQuadsData,
+//     });
+
+//     if (response.ok) {
+//       console.log("Successfully ingested Oxigraph data into GraphDB.");
+//     } else {
+//       const errorText = await response.text();
+//       throw new Error(`GraphDB Ingestion Failed: ${response.status} - ${errorText}`);
+//     }
+//   } catch (error) {
+//     console.error("Error during GraphDB ingestion:", error);
+//     throw error;
+//   }
+// }
+
+export async function ingestToOxigraph(serverUrl = "http://localhost:7878") {
+  try {
+    console.log(`Exporting Oxigraph data to external Oxigraph server at: ${serverUrl}...`);
+
+    // 1. Serialize local Oxigraph store to N-Quads
     const nQuadsData = store.dump("application/n-quads");
 
-    // 2. Construct the GraphDB Graph Store endpoint URL
-    // This endpoint is used for adding/replacing RDF data
-    const endpoint = `${serverUrl}/repositories/${repositoryId}/statements`;
+    // 2. Oxigraph's store endpoint
+    // POST /store adds data to the default graph or named graphs if specified
+    const endpoint = `${serverUrl}/store`;
 
-    // 3. POST the data to GraphDB
+    // 3. POST the data
     const response = await fetch(endpoint, {
-      method: "POST", // Use POST to append data, or PUT to replace everything
+      method: "POST", 
       headers: {
         "Content-Type": "application/n-quads",
       },
@@ -79,13 +111,13 @@ export async function ingestToGraphDB(serverUrl, repositoryId) {
     });
 
     if (response.ok) {
-      console.log("Successfully ingested Oxigraph data into GraphDB.");
+      console.log("Successfully ingested data into Oxigraph Server.");
     } else {
       const errorText = await response.text();
-      throw new Error(`GraphDB Ingestion Failed: ${response.status} - ${errorText}`);
+      throw new Error(`Oxigraph Server Ingestion Failed: ${response.status} - ${errorText}`);
     }
   } catch (error) {
-    console.error("Error during GraphDB ingestion:", error);
+    console.error("Error during Oxigraph Server ingestion:", error);
     throw error;
   }
 }

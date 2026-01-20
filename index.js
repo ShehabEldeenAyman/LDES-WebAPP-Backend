@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors'
 //import ldesRouter from './routes/ldes.js'; // Import your new route file
-import { ingestData,ingestToGraphDB } from './services/ldesService.js';
+import { ingestData,ingestToOxigraph } from './services/ldesService.js';
 //import { queryGraphDB } from './routes/ldes/ldesSPARQLengine.js';
 import { RiverStage1Year } from './routes/ldes/RiverStage1Year.js';
 import {RiverDischarge1Year} from './routes/ldes/RiverDischarge1Year.js'
@@ -25,7 +25,8 @@ async function startServer() {
     // Ingestion runs in background
   ingestData().then(() => {
     console.log("Background ingestion finished!");
-    ingestToGraphDB("http://localhost:7200", "ldes-cache");
+    ingestToOxigraph("http://localhost:7878");
+    //ingestToGraphDB("http://localhost:7200", "ldes-cache");
   });
     
     console.log("Initialization finished. Starting web server...");

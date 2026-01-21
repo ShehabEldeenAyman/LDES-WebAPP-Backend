@@ -3,7 +3,7 @@ import { replicateLDES } from "ldes-client";
 import fetch from "node-fetch";
 
 // Configuration
-const BATCH_SIZE = 200; // Lower batch size to prevent massive string allocations in RAM
+const BATCH_SIZE = 50; // Lower batch size to prevent massive string allocations in RAM
 let isLoaded = false;
 
 /**

@@ -3,7 +3,7 @@ import { replicateLDES } from "ldes-client";
 import fetch from "node-fetch";
 
 // Configuration
-const BATCH_SIZE = 500; // Number of quads to send in one HTTP request
+const BATCH_SIZE = 100; // Number of quads to send in one HTTP request
 let isLoaded = false;
 
 // Helper: Serialize a single RDFJS Quad to an N-Quad string

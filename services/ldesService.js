@@ -1,123 +1,147 @@
-// ldesService.js
+// services/ldesService.js
 import { replicateLDES } from "ldes-client";
-import { Store } from "oxigraph";
 import fetch from "node-fetch";
 
-// 1. Initialize the store globally in this module
-const store = new Store();
-let isLoaded = false; // Flag to track if we already have data
+// Configuration
+const BATCH_SIZE = 500; // Number of quads to send in one HTTP request
+let isLoaded = false;
 
-// 2. Define the ingestion logic
-export async function ingestData() {
+// Helper: Serialize a single RDFJS Quad to an N-Quad string
+function serializeQuad(quad) {
+  const serializeTerm = (term) => {
+    if (term.termType === 'NamedNode') return `<${term.value}>`;
+    if (term.termType === 'BlankNode') return `_:${term.value}`;
+    if (term.termType === 'Literal') {
+      const value = JSON.stringify(term.value); // Handle escaping quotes safely
+      if (term.language) return `${value}@${term.language}`;
+      if (term.datatype && term.datatype.value !== 'http://www.w3.org/2001/XMLSchema#string') {
+        return `${value}^^<${term.datatype.value}>`;
+      }
+      return value;
+    }
+    if (term.termType === 'DefaultGraph') return '';
+    throw new Error(`Unknown term type: ${term.termType}`);
+  };
+
+  const s = serializeTerm(quad.subject);
+  const p = serializeTerm(quad.predicate);
+  const o = serializeTerm(quad.object);
+  const g = quad.graph.termType === 'DefaultGraph' ? '' : serializeTerm(quad.graph);
+
+  // N-Quads format: S P O G .
+  return `${s} ${p} ${o} ${g} .`.trim();
+}
+
+// 1. Ingestion Logic (Streaming directly to DB)
+export async function ingestData(serverUrl = "http://localhost:7878") {
   if (isLoaded) {
     console.log("Data already loaded. Skipping ingestion.");
     return;
   }
 
-  console.log("Starting LDES ingestion...");
+  console.log(`Starting LDES ingestion directly to ${serverUrl}...`);
+  
   const ldesClient = replicateLDES({
     url: "https://shehabeldeenayman.github.io/Mol_sluis_Dessel_Usecase/LDES/LDES.trig",
     materialize: true,
   });
 
   const memberReader = ldesClient.stream({ highWaterMark: 10 }).getReader();
+  const storeEndpoint = `${serverUrl}/store`;
+
+  let quadBuffer = [];
+  let totalQuads = 0;
+
+  // Helper to flush buffer to DB
+  const flushBuffer = async () => {
+    if (quadBuffer.length === 0) return;
+
+    const nQuadsData = quadBuffer.join('\n');
+    
+    try {
+      const response = await fetch(storeEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/n-quads" },
+        body: nQuadsData,
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        console.error(`Failed to push batch: ${text}`);
+      } else {
+        totalQuads += quadBuffer.length;
+        // Optional: Log progress periodically
+        // console.log(`Ingested ${totalQuads} quads so far...`);
+      }
+    } catch (e) {
+      console.error("Error pushing batch to Oxigraph:", e);
+    }
+    
+    // Clear buffer
+    quadBuffer = [];
+  };
 
   while (true) {
     const { value: member, done } = await memberReader.read();
     if (done) break;
 
-    // Add quads to the shared store
+    // Convert member quads to N-Quad strings
     for (const quad of member.quads) {
-      store.add(quad);
+      quadBuffer.push(serializeQuad(quad));
+    }
+
+    // If buffer is full, send to DB
+    if (quadBuffer.length >= BATCH_SIZE) {
+      await flushBuffer();
     }
   }
+
+  // Flush any remaining data
+  await flushBuffer();
   
   isLoaded = true;
-  console.log(`Ingestion complete. Store size: ${store.size}`);
+  console.log(`Ingestion complete. Total quads ingested: ${totalQuads}`);
 }
 
-// 3. Export a function to query the data
-export function runQuery(sparqlQuery) {
-  const results = [];
-  // Run query on the shared store
-  const queryResults = store.query(sparqlQuery);
+// 2. Query Logic (Proxies query to external DB)
+// Note: This replaces the local store.query logic
+export async function runQuery(sparqlQuery, serverUrl = "http://localhost:7878") {
+  const queryEndpoint = `${serverUrl}/query`;
   
-  for (const binding of queryResults) {
-    const row = {};
-    binding.forEach((value, key) => {
-      row[key] = value.value;
-    });
-    results.push(row);
-  }
-  return results;
-}
+  // URL Encode the query for the POST body
+  const params = new URLSearchParams();
+  params.append("query", sparqlQuery);
 
-// 4. Export the raw store if needed elsewhere
-export function getStore() {
-  return store;
-}
-
-// export async function ingestToGraphDB(serverUrl, repositoryId) {
-//   try {
-//     console.log(`Exporting Oxigraph data to GraphDB repository: ${repositoryId}...`);
-
-//     // 1. Serialize Oxigraph store to N-Quads or N-Triples format
-//     // GraphDB supports these formats for batch loading
-//     const nQuadsData = store.dump("application/n-quads");
-
-//     // 2. Construct the GraphDB Graph Store endpoint URL
-//     // This endpoint is used for adding/replacing RDF data
-//     const endpoint = `${serverUrl}/repositories/${repositoryId}/statements`;
-
-//     // 3. POST the data to GraphDB
-//     const response = await fetch(endpoint, {
-//       method: "POST", // Use POST to append data, or PUT to replace everything
-//       headers: {
-//         "Content-Type": "application/n-quads",
-//       },
-//       body: nQuadsData,
-//     });
-
-//     if (response.ok) {
-//       console.log("Successfully ingested Oxigraph data into GraphDB.");
-//     } else {
-//       const errorText = await response.text();
-//       throw new Error(`GraphDB Ingestion Failed: ${response.status} - ${errorText}`);
-//     }
-//   } catch (error) {
-//     console.error("Error during GraphDB ingestion:", error);
-//     throw error;
-//   }
-// }
-
-export async function ingestToOxigraph(serverUrl = "http://localhost:7878") {
   try {
-    console.log(`Exporting Oxigraph data to external Oxigraph server at: ${serverUrl}...`);
-
-    // 1. Serialize local Oxigraph store to N-Quads
-    const nQuadsData = store.dump("application/n-quads");
-
-    // 2. Oxigraph's store endpoint
-    // POST /store adds data to the default graph or named graphs if specified
-    const endpoint = `${serverUrl}/store`;
-
-    // 3. POST the data
-    const response = await fetch(endpoint, {
-      method: "POST", 
+    const response = await fetch(queryEndpoint, {
+      method: "POST",
       headers: {
-        "Content-Type": "application/n-quads",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/sparql-results+json" 
       },
-      body: nQuadsData,
+      body: params
     });
 
-    if (response.ok) {
-      console.log("Successfully ingested data into Oxigraph Server.");
-    } else {
-      const errorText = await response.text();
-      throw new Error(`Oxigraph Server Ingestion Failed: ${response.status} - ${errorText}`);
+    if (!response.ok) {
+      throw new Error(`Query failed: ${response.statusText}`);
     }
+
+    const json = await response.json();
+
+    // Transform SPARQL JSON results to the flat format your app expects
+    // Output: [{ "var1": "value1", "var2": "value2" }, ...]
+    const results = json.results.bindings.map(binding => {
+      const row = {};
+      for (const key in binding) {
+        row[key] = binding[key].value;
+      }
+      return row;
+    });
+
+    return results;
+
   } catch (error) {
-    console.error("Error during Oxigraph Server ingestion:", error);
-    throw error;
+    console.error("Error executing SPARQL query:", error);
+    return [];
   }
 }

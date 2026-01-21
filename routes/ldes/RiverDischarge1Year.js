@@ -1,36 +1,40 @@
-import { queryGraphDB } from '../../engines/ldesSPARQLengine.js'
+// RiverDischarge1Year.js
+import { runQuery } from '../../services/ldesService.js';
 
 export async function RiverDischarge1Year(req, res) {
   try {
-    const results = await queryGraphDB("http://localhost:7200", "ldes-cache", `
-PREFIX sosa: <http://www.w3.org/ns/sosa/>
-PREFIX ex: <http://example.com/ns#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+    // Define the Oxigraph server URL
+    const OXIGRAPH_URL = "http://localhost:7878";
 
-SELECT ?subject ?value ?time ?runoffvalue
-WHERE {
-  GRAPH ?g {
-    ?subject sosa:observedProperty "River Discharge" ;
-             sosa:hasSimpleResult ?value ;
-             sosa:resultTime ?time ;
-             ex:runoffValue ?runoffvalue .
-    
-    # Filter to only include results from the year 2025
-    FILTER(YEAR(?time) = 2025)
-  }
-}
-ORDER BY DESC(?time)
-    `);
+    const sparqlQuery = `
+      PREFIX sosa: <http://www.w3.org/ns/sosa/>
+      PREFIX ex: <http://example.com/ns#>
+      PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-    // Transform the results into a clean array of JSON objects if needed, 
-    // or send the raw GraphDB results directly.
+      SELECT ?subject ?value ?time ?runoffvalue
+      WHERE {
+        GRAPH ?g {
+          ?subject sosa:observedProperty "River Discharge" ;
+                   sosa:hasSimpleResult ?value ;
+                   sosa:resultTime ?time ;
+                   ex:runoffValue ?runoffvalue .
+          
+          # Filter to only include results from the year 2025
+          FILTER(YEAR(?time) = 2025)
+        }
+      }
+      ORDER BY DESC(?time)
+    `;
+
+    // Execute the query against the Oxigraph server
+    const results = await runQuery(sparqlQuery, OXIGRAPH_URL);
+
+    // Transform the results into a clean array of JSON objects
     const formattedResults = results.map(observation => ({
       subject: observation.subject,
-      parameter: observation.parameter,
       value: observation.value,
       time: observation.time,
       runoffvalue: observation.runoffvalue
-      //message: `At ${observation.time}, the ${observation.parameter} was ${observation.value} meters.`
     }));
 
     // Return the results as a JSON array

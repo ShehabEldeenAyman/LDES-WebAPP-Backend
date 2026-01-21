@@ -7,6 +7,7 @@ import { ingestData } from './services/ldesService.js';
 //import { queryGraphDB } from './routes/ldes/ldesSPARQLengine.js';
 import { RiverStage1Year } from './routes/ldes/RiverStage1Year.js';
 import {RiverDischarge1Year} from './routes/ldes/RiverDischarge1Year.js'
+import {ldesTssService} from './services/ldesTssService.js'
 
 const app = express();
 const PORT = 3000;
@@ -25,7 +26,7 @@ try {
 
     // 1. Capture the start time
     const startTime = Date.now();
-
+ldesTssService()
     // 2. Start ingestion in the background
     ingestData(OXIGRAPH_URL).then(() => {
       // 3. Capture end time when promise resolves

@@ -8,17 +8,23 @@ import { ingestData } from './services/ldesService.js';
 import { RiverStage1Year } from './routes/ldes/RiverStage1Year.js';
 import {RiverDischarge1Year} from './routes/ldes/RiverDischarge1Year.js'
 import {ldesTssService} from './services/ldesTssService.js'
+import {RiverDischarge1YearTSS} from './routes/ldestss/RiverDischarge1YearTSS.js'
 
 const app = express();
 const PORT = 3000;
 const OXIGRAPH_URL = "http://localhost:7878";
 
 app.use(express.json());
-app.use(cors());
+// Replace the simple cors() with this:
+app.use(cors({
+  origin: '*', // For development only. In production, specify your frontend URL
+  methods: ['GET', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Accept']
+}));
 
 app.get('/ldes/RiverStage1Year', RiverStage1Year);
 app.get('/ldes/RiverDischarge1Year', RiverDischarge1Year);
-
+app.get('/ldestss/RiverDischarge1Year', RiverDischarge1YearTSS);
 
 async function startServer() {
 try {
@@ -26,8 +32,7 @@ try {
 
     // 1. Capture the start time
     const startTime = Date.now();
-ldesTssService()
-    // 2. Start ingestion in the background
+    await ldesTssService();    // 2. Start ingestion in the background
     ingestData(OXIGRAPH_URL).then(() => {
       // 3. Capture end time when promise resolves
       const endTime = Date.now();

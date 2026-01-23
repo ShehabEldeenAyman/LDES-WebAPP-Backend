@@ -13,7 +13,7 @@ export async function ldesTssService() {
     await fetch(OXIGRAPH_URL, {
       method: 'DELETE'
     });
-    console.log("Oxigraph store cleared.");
+    console.log("LDESTSS Oxigraph store cleared on port 7878.");
 
     const ldesClient = replicateLDES({
       url: "https://shehabeldeenayman.github.io/Mol_sluis_Dessel_Usecase/LDESTSS/LDESTSS.trig",
@@ -31,9 +31,9 @@ export async function ldesTssService() {
 
     // 3. Perform a single upload
     if (allQuads.length > 0) {
-      console.log(`Uploading ${allQuads.length} quads to Oxigraph...`);
+      console.log(`Uploading ${allQuads.length} quads to LDESTSS Oxigraph on port 7878`);
       await uploadToOxigraph(allQuads);
-      console.log("LDES Stream processing and upload complete.");
+      console.log("LDESTSS upload successfully.");
     } else {
       console.log("No data found to upload.");
     }

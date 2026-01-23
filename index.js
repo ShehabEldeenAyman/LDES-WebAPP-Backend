@@ -9,6 +9,7 @@ import { RiverStage1Year } from './routes/ldes/RiverStage1Year.js';
 import {RiverDischarge1Year} from './routes/ldes/RiverDischarge1Year.js'
 import {ldesTssService} from './services/ldesTssService.js'
 import {RiverDischarge1YearTSS} from './routes/ldestss/RiverDischarge1YearTSS.js'
+import {RiverStage1YearTSS} from './routes/ldestss/RiverStage1YearTSS.js'
 
 const app = express();
 const PORT = 3000;
@@ -25,6 +26,7 @@ app.use(cors({
 app.get('/ldes/RiverStage1Year', RiverStage1Year);
 app.get('/ldes/RiverDischarge1Year', RiverDischarge1Year);
 app.get('/ldestss/RiverDischarge1Year', RiverDischarge1YearTSS);
+app.get('/ldestss/RiverStage1Year', RiverStage1YearTSS);
 
 async function startServer() {
 try {
@@ -32,8 +34,19 @@ try {
 
     // 1. Capture the start time
     const startTime = Date.now();
-    await ldesTssService();    // 2. Start ingestion in the background
-    ingestData(OXIGRAPH_URL).then(() => {
+    await ldesTssService().then(() => {
+      // 3. Capture end time when promise resolves
+      const endTime = Date.now();
+      
+      // Calculate duration in seconds
+      const durationSeconds = (endTime - startTime) / 1000;
+      
+      console.log(`LDESTSS ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+    });
+      
+    
+    // 2. Start ingestion in the background
+    await ingestData(OXIGRAPH_URL).then(() => {
       // 3. Capture end time when promise resolves
       const endTime = Date.now();
       

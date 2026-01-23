@@ -34,7 +34,7 @@ export async function RiverDischarge1Year(req, res) {
       subject: observation.subject,
       value: observation.value,
       time: observation.time,
-      runoffvalue: observation.runoffvalue
+      //runoffvalue: observation.runoffvalue we will deal with runoff value later
     }));
 
     // Return the results as a JSON array

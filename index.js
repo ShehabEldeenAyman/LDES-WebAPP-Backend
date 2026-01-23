@@ -2,14 +2,14 @@ import express from 'express';
 import cors from 'cors'
 //import ldesRouter from './routes/ldes.js'; // Import your new route file
 //import { ingestData,ingestToOxigraph } from './services/ldesService.js';
-import { ingestData } from './services/ldesService.js';
+//import { ingestData } from './models/ldesService.js';
 
 //import { queryGraphDB } from './routes/ldes/ldesSPARQLengine.js';
-import { RiverStage1Year } from './routes/ldes/RiverStage1Year.js';
-import {RiverDischarge1Year} from './routes/ldes/RiverDischarge1Year.js'
-import {ldesTssService} from './services/ldesTssService.js'
+// import { RiverStage1Year } from './routes/ldes/RiverStage1Year.js';
+// import {RiverDischarge1Year} from './routes/ldes/RiverDischarge1Year.js'
+import {ldesTssService} from './models/ldesTssService.js'
 import {RiverDischarge1YearTSS} from './routes/ldestss/RiverDischarge1YearTSS.js'
-import {RiverStage1YearTSS} from './routes/ldestss/RiverStage1YearTSS.js'
+//import {RiverStage1YearTSS} from './routes/ldestss/RiverStage1YearTSS.js'
 
 const app = express();
 const PORT = 3000;
@@ -23,10 +23,10 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Accept']
 }));
 
-app.get('/ldes/RiverStage1Year', RiverStage1Year);
-app.get('/ldes/RiverDischarge1Year', RiverDischarge1Year);
+// app.get('/ldes/RiverStage1Year', RiverStage1Year);
+// app.get('/ldes/RiverDischarge1Year', RiverDischarge1Year);
 app.get('/ldestss/RiverDischarge1Year', RiverDischarge1YearTSS);
-app.get('/ldestss/RiverStage1Year', RiverStage1YearTSS);
+//app.get('/ldestss/RiverStage1Year', RiverStage1YearTSS);
 
 async function startServer() {
 try {
@@ -45,16 +45,16 @@ try {
     });
       
     
-    // 2. Start ingestion in the background
-    await ingestData(OXIGRAPH_URL).then(() => {
-      // 3. Capture end time when promise resolves
-      const endTime = Date.now();
+    // // 2. Start ingestion in the background
+    // await ingestData(OXIGRAPH_URL).then(() => {
+    //   // 3. Capture end time when promise resolves
+    //   const endTime = Date.now();
       
-      // Calculate duration in seconds
-      const durationSeconds = (endTime - startTime) / 1000;
+    //   // Calculate duration in seconds
+    //   const durationSeconds = (endTime - startTime) / 1000;
       
-      console.log(`Background ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    });
+    //   console.log(`Background ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+    // });
     
     console.log("Initialization finished. Starting web server...");
 

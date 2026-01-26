@@ -8,8 +8,10 @@ import cors from 'cors'
 // import { RiverStage1Year } from './routes/ldes/RiverStage1Year.js';
 // import {RiverDischarge1Year} from './routes/ldes/RiverDischarge1Year.js'
 import {ldesTssService} from './models/ldesTssService.js'
-import {RiverDischarge1YearTSS} from './routes/ldestss/RiverDischarge1YearTSS.js'
+//import {RiverDischarge1YearTSS} from './routes/ldestss/RiverDischarge1YearTSS.js'
 //import {RiverStage1YearTSS} from './routes/ldestss/RiverStage1YearTSS.js'
+import {RiverStage1YearTSSquery,RiverDischarge1YearTSSquery} from './queries/LDESTSSquery.js'
+import {ldestssRoute} from './routes/ldestssRoute.js'
 
 const app = express();
 const PORT = 3000;
@@ -25,8 +27,12 @@ app.use(cors({
 
 // app.get('/ldes/RiverStage1Year', RiverStage1Year);
 // app.get('/ldes/RiverDischarge1Year', RiverDischarge1Year);
-app.get('/ldestss/RiverDischarge1Year', RiverDischarge1YearTSS);
-app.get('/ldestss/RiverStage1Year', RiverStage1YearTSS);
+app.get('/ldestss/RiverDischarge1Year', async (req, res) => {
+  return ldestssRoute(req, res, RiverDischarge1YearTSSquery);
+});
+app.get('/ldestss/RiverStage1Year', async (req, res) => {
+  return ldestssRoute(req, res, RiverStage1YearTSSquery);
+});
 
 async function startServer() {
 try {

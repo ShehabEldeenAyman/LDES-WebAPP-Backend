@@ -26,7 +26,7 @@ app.use(cors({
 // app.get('/ldes/RiverStage1Year', RiverStage1Year);
 // app.get('/ldes/RiverDischarge1Year', RiverDischarge1Year);
 app.get('/ldestss/RiverDischarge1Year', RiverDischarge1YearTSS);
-//app.get('/ldestss/RiverStage1Year', RiverStage1YearTSS);
+app.get('/ldestss/RiverStage1Year', RiverStage1YearTSS);
 
 async function startServer() {
 try {

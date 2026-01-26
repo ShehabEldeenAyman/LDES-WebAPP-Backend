@@ -1,6 +1,6 @@
 export async function RiverStage1YearTSS(req, res) {
-  const repoId = "LDES-TSS";
-  const url = `http://localhost:7200/repositories/${repoId}`;
+  const OXIGRAPH_BASE_URL = "http://localhost:7878"; // Base URL for Oxigraph
+  const queryEndpoint = `${OXIGRAPH_BASE_URL}/query`;
 
   // UPDATED QUERY:
   // 1. Selects the Snippet URI (?subject) and its attributes (from, pointType, points)
@@ -33,24 +33,29 @@ ORDER BY ASC(?from)
   `;
 
   try {
-    const queryUrl = `${url}?query=${encodeURIComponent(sparqlQuery)}`;
-    
-    const response = await fetch(queryUrl, {
-      method: 'GET',
+    // Oxigraph prefers POST for queries with URL-encoded bodies
+    const params = new URLSearchParams();
+    params.append("query", sparqlQuery);
+
+    const response = await fetch(queryEndpoint, {
+      method: 'POST',
       headers: { 
+        'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/sparql-results+json' 
-      }
+      },
+      body: params
     });
 
     if (!response.ok) {
-      return res.status(response.status).json({ error: await response.text() });
+      const errorText = await response.text();
+      return res.status(response.status).json({ error: errorText });
     }
 
     const result = await response.json();
 
     const formattedData = result.results.bindings.map(binding => {
       try {
-        // Parse the JSON string in "points" so it returns as a real JSON array, not a string
+        // Parse the JSON string in "points"
         const parsedPoints = JSON.parse(binding.points.value);
 
         return {
@@ -64,7 +69,7 @@ ORDER BY ASC(?from)
         console.warn(`Failed to parse points for subject ${binding.subject.value}`, e);
         return null; 
       }
-    }).filter(item => item !== null); // Remove any failed parses
+    }).filter(item => item !== null);
 
     return res.status(200).json(formattedData);
 

@@ -10,7 +10,7 @@ import cors from 'cors'
 import {ldesTssService} from './models/ldesTssService.js'
 //import {RiverDischarge1YearTSS} from './routes/ldestss/RiverDischarge1YearTSS.js'
 //import {RiverStage1YearTSS} from './routes/ldestss/RiverStage1YearTSS.js'
-import {RiverStage1YearTSSquery,RiverDischarge1YearTSSquery} from './queries/LDESTSSquery.js'
+import {OXIGRAPH_BASE_URL_LDESTSS,RiverStage1YearTSSquery,RiverDischarge1YearTSSquery} from './queries/LDESTSSquery.js'
 import {ldestssRoute} from './routes/ldestssRoute.js'
 
 const app = express();
@@ -28,10 +28,10 @@ app.use(cors({
 // app.get('/ldes/RiverStage1Year', RiverStage1Year);
 // app.get('/ldes/RiverDischarge1Year', RiverDischarge1Year);
 app.get('/ldestss/RiverDischarge1Year', async (req, res) => {
-  return ldestssRoute(req, res, RiverDischarge1YearTSSquery);
+  return ldestssRoute(req, res, RiverDischarge1YearTSSquery, OXIGRAPH_BASE_URL_LDESTSS);
 });
 app.get('/ldestss/RiverStage1Year', async (req, res) => {
-  return ldestssRoute(req, res, RiverStage1YearTSSquery);
+  return ldestssRoute(req, res, RiverStage1YearTSSquery, OXIGRAPH_BASE_URL_LDESTSS);
 });
 
 async function startServer() {

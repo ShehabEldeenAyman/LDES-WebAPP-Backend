@@ -1,6 +1,5 @@
-export async function ldestssRoute(req, res,sparqlQuery) {
-  const OXIGRAPH_BASE_URL = "http://localhost:7878"; // Base URL for Oxigraph
-  const queryEndpoint = `${OXIGRAPH_BASE_URL}/query`;
+export async function ldestssRoute(req, res,sparqlQuery,OXIGRAPH_BASE_URL_LDESTSS) {
+  const queryEndpoint = `${OXIGRAPH_BASE_URL_LDESTSS}/query`;
 
   try {
     // Oxigraph prefers POST for queries with URL-encoded bodies

@@ -4,26 +4,8 @@
 export async function RiverStage1Year(req, res) {
   try {
     // Define the Oxigraph server URL
-    const OXIGRAPH_URL = "http://localhost:7878";
 
-    const sparqlQuery = `
-      PREFIX sosa: <http://www.w3.org/ns/sosa/>
-      PREFIX ex: <http://example.com/ns#>
-      PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-      SELECT ?subject ?value ?time  
-      WHERE {
-        GRAPH ?g {
-          ?subject sosa:observedProperty "River Stage" ;
-                   sosa:hasSimpleResult ?value ;
-                   sosa:resultTime ?time .
-          
-          # Filter to only include results from the year 2025
-          FILTER(YEAR(?time) = 2025)
-        }
-      }
-      ORDER BY DESC(?time)
-    `;
 
     // Execute the query against the Oxigraph server using the new runQuery service
     const results = await runQuery(sparqlQuery, OXIGRAPH_URL);

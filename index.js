@@ -11,11 +11,12 @@ import {ldesTssService} from './models/ldesTssService.js'
 //import {RiverDischarge1YearTSS} from './routes/ldestss/RiverDischarge1YearTSS.js'
 //import {RiverStage1YearTSS} from './routes/ldestss/RiverStage1YearTSS.js'
 import {OXIGRAPH_BASE_URL_LDESTSS,RiverStage1YearTSSquery,RiverDischarge1YearTSSquery} from './queries/LDESTSSquery.js'
+import {OXIGRAPH_BASE_URL_LDES,RiverDischarge1YearLDESquery,RiverStage1YearLDESquery} from './queries/LDESquery.js'
 import {ldestssRoute} from './routes/ldestssRoute.js'
+import { ldesRoute } from './routes/ldesRoute.js';
 
 const app = express();
 const PORT = 3000;
-const OXIGRAPH_URL = "http://localhost:7878";
 
 app.use(express.json());
 // Replace the simple cors() with this:

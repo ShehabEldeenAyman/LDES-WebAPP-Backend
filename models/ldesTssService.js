@@ -1,8 +1,6 @@
 import { replicateLDES } from "ldes-client";
 import { Writer } from "n3";
 
-const OXIGRAPH_URL = "http://localhost:7878/store";
-
 export async function ldesTssService() {
   console.log("Starting LDES TSS Service stream...");
   const allQuads = [];

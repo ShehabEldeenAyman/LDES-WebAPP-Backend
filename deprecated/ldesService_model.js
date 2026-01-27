@@ -37,7 +37,7 @@ export async function ldesService() {
       console.log("No data found to upload.");
     }
 
-  } catch (error) {
+  } catch (error) {z
     console.error("Error in ldesService:", error);
   }
 }

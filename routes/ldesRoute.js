@@ -1,18 +1,12 @@
-export async function ldesRoute(req, res,sparqlQuery,OXIGRAPH_BASE_URL_LDESTSS) {
-  const queryEndpoint = `${OXIGRAPH_BASE_URL_LDESTSS}/query`;
+export async function ldesRoute(req, res, sparqlQuery, OXIGRAPH_BASE_URL_LDES) {
+  const queryEndpoint = `${OXIGRAPH_BASE_URL_LDES}query?query=${encodeURIComponent(sparqlQuery)}`;
 
   try {
-    // Oxigraph prefers POST for queries with URL-encoded bodies
-    const params = new URLSearchParams();
-    params.append("query", sparqlQuery);
-
     const response = await fetch(queryEndpoint, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/sparql-results+json' 
-      },
-      body: params
+      method: 'GET',
+      headers: {
+        'Accept': 'application/sparql-results+json'
+      }
     });
 
     if (!response.ok) {
@@ -24,17 +18,18 @@ export async function ldesRoute(req, res,sparqlQuery,OXIGRAPH_BASE_URL_LDESTSS) 
 
     const formattedData = result.results.bindings.map(binding => {
       try {
-        // Parse the JSON string in "points"
-        const parsedPoints = JSON.parse(binding.points.value);
-
+        // We simply extract the values directly. 
+        // We use optional chaining (?.) in case runoffvalue is missing for some rows.
         return {
-            subject: observation.subject,
-            value: observation.value,
-            time: observation.time
+          subject: binding.subject.value,
+          value: binding.value.value,
+          time: binding.time.value,
+          // runoffvalue is only selected in the RiverDischarge query, so we check if it exists
+          runoffValue: binding.runoffvalue ? binding.runoffvalue.value : null
         };
       } catch (e) {
-        console.warn(`Failed to parse points for subject ${binding.subject.value}`, e);
-        return null; 
+        console.warn(`Failed to parse binding for subject ${binding.subject?.value}`, e);
+        return null;
       }
     }).filter(item => item !== null);
 

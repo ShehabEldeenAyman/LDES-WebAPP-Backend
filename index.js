@@ -7,13 +7,14 @@ import cors from 'cors'
 //import { queryGraphDB } from './routes/ldes/ldesSPARQLengine.js';
 // import { RiverStage1Year } from './routes/ldes/RiverStage1Year.js';
 // import {RiverDischarge1Year} from './routes/ldes/RiverDischarge1Year.js'
-import {ldesTssService} from './models/ldesTssService.js'
+//import {ldesTssService} from './models/ldesTssService.js'
 //import {RiverDischarge1YearTSS} from './routes/ldestss/RiverDischarge1YearTSS.js'
 //import {RiverStage1YearTSS} from './routes/ldestss/RiverStage1YearTSS.js'
-import {OXIGRAPH_BASE_URL_LDESTSS,RiverStage1YearTSSquery,RiverDischarge1YearTSSquery} from './queries/LDESTSSquery.js'
-import {OXIGRAPH_BASE_URL_LDES,RiverDischarge1YearLDESquery,RiverStage1YearLDESquery} from './queries/LDESquery.js'
+import {OXIGRAPH_BASE_URL_LDESTSS,RiverStage1YearTSSquery,RiverDischarge1YearTSSquery,data_url_LDESTSS} from './queries/LDESTSSquery.js'
+import {OXIGRAPH_BASE_URL_LDES,RiverDischarge1YearLDESquery,RiverStage1YearLDESquery,data_url_LDES} from './queries/LDESquery.js'
 import {ldestssRoute} from './routes/ldestssRoute.js'
 import { ldesRoute } from './routes/ldesRoute.js';
+import {modelHandler} from './models/modelHandler.js'
 
 const app = express();
 const PORT = 3000;
@@ -26,22 +27,29 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Accept']
 }));
 
-// app.get('/ldes/RiverStage1Year', RiverStage1Year);
-// app.get('/ldes/RiverDischarge1Year', RiverDischarge1Year);
-app.get('/ldestss/RiverDischarge1Year', async (req, res) => {
+    app.get('/ldestss/RiverDischarge1Year', async (req, res) => {
   return ldestssRoute(req, res, RiverDischarge1YearTSSquery, OXIGRAPH_BASE_URL_LDESTSS);
 });
 app.get('/ldestss/RiverStage1Year', async (req, res) => {
   return ldestssRoute(req, res, RiverStage1YearTSSquery, OXIGRAPH_BASE_URL_LDESTSS);
 });
+app.get('/ldes/RiverDischarge1Year', async (req, res) => {
+  return ldesRoute(req, res, RiverDischarge1YearLDESquery, OXIGRAPH_BASE_URL_LDES);
+});
+app.get('/ldes/RiverStage1Year', async (req, res) => {
+  return ldesRoute(req, res, RiverStage1YearLDESquery, OXIGRAPH_BASE_URL_LDES);
+});
+
+// app.get('/ldes/RiverStage1Year', RiverStage1Year);
+// app.get('/ldes/RiverDischarge1Year', RiverDischarge1Year);
+
 
 async function startServer() {
 try {
-    console.log("Initializing LDES data...");
-
+    console.log("Initializing LDESTSS data...");
     // 1. Capture the start time
     const startTime = Date.now();
-    await ldesTssService().then(() => {
+    await modelHandler(OXIGRAPH_BASE_URL_LDESTSS, data_url_LDESTSS, "LDESTSS", 7878).then(() => {
       // 3. Capture end time when promise resolves
       const endTime = Date.now();
       
@@ -50,6 +58,18 @@ try {
       
       console.log(`LDESTSS ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
+
+        await modelHandler(OXIGRAPH_BASE_URL_LDES, data_url_LDES, "LDES", 7879).then(() => {
+      // 3. Capture end time when promise resolves
+      const endTime = Date.now();
+      
+      // Calculate duration in seconds
+      const durationSeconds = (endTime - startTime) / 1000;
+      
+      console.log(`LDES ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+    });
+
+
       
     
     // // 2. Start ingestion in the background
@@ -69,6 +89,7 @@ try {
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
+
 
     //await ldesQueryTest1()
 

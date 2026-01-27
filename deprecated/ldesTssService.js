@@ -2,7 +2,7 @@ import { replicateLDES } from "ldes-client";
 import { Writer } from "n3";
 
 export async function ldesTssService() {
-  console.log("Starting LDES TSS Service stream...");
+  console.log("Starting LDESTSS Service stream...");
   const allQuads = [];
 
   try {
@@ -14,7 +14,7 @@ export async function ldesTssService() {
     console.log("LDESTSS Oxigraph store cleared on port 7878.");
 
     const ldesClient = replicateLDES({
-      url: "https://shehabeldeenayman.github.io/Mol_sluis_Dessel_Usecase/LDESTSS/LDESTSS.trig",
+      url: ,
       fetchOptions: { redirect: "follow" }
     });
 
@@ -65,6 +65,6 @@ async function uploadToOxigraph(quads) {
       throw new Error(`Oxigraph responded with ${response.status}: ${errorText}`);
     }
   } catch (error) {
-    console.error("Failed to upload to Oxigraph:", error.message);
+    console.error("Failed to upload LDESTSS to Oxigraph:", error.message);
   }
 }

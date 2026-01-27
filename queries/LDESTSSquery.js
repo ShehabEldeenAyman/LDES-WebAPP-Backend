@@ -1,5 +1,5 @@
-export const OXIGRAPH_BASE_URL_LDESTSS = "http://localhost:7878"; // Base URL for Oxigraph
-
+export const OXIGRAPH_BASE_URL_LDESTSS = "http://localhost:7878/"; // Base URL for Oxigraph
+export const data_url_LDESTSS = "https://shehabeldeenayman.github.io/Mol_sluis_Dessel_Usecase/LDESTSS/LDESTSS.trig";
  export const RiverStage1YearTSSquery = `
  PREFIX tss: <https://w3id.org/tss#>
 PREFIX sosa: <http://www.w3.org/ns/sosa/>

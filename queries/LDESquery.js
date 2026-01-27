@@ -1,4 +1,5 @@
-export const OXIGRAPH_BASE_URL_LDES = "http://localhost:7879";
+export const OXIGRAPH_BASE_URL_LDES = "http://localhost:7879/";
+export const data_url_LDES = "https://shehabeldeenayman.github.io/Mol_sluis_Dessel_Usecase/LDES/LDES.trig";
 export const RiverDischarge1YearLDESquery = `
       PREFIX sosa: <http://www.w3.org/ns/sosa/>
       PREFIX ex: <http://example.com/ns#>

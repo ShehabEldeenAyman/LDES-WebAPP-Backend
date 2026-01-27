@@ -1,18 +1,13 @@
-export async function ldestssRoute(req, res,sparqlQuery,OXIGRAPH_BASE_URL_LDESTSS) {
-  const queryEndpoint = `${OXIGRAPH_BASE_URL_LDESTSS}/query`;
+export async function ldestssRoute(req, res, sparqlQuery, OXIGRAPH_BASE_URL_LDESTSS) {
+  // Construct the URL with the query as a parameter
+  const queryEndpoint = `${OXIGRAPH_BASE_URL_LDESTSS}query?query=${encodeURIComponent(sparqlQuery)}`;
 
   try {
-    // Oxigraph prefers POST for queries with URL-encoded bodies
-    const params = new URLSearchParams();
-    params.append("query", sparqlQuery);
-
     const response = await fetch(queryEndpoint, {
-      method: 'POST',
+      method: 'GET',
       headers: { 
-        'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/sparql-results+json' 
-      },
-      body: params
+      }
     });
 
     if (!response.ok) {

@@ -1,7 +1,6 @@
 import { replicateLDES } from "ldes-client";
 import { Writer } from "n3";
 
-const OXIGRAPH_URL = "http://localhost:7879/store";
 
 export async function ldesService() {
   console.log("Starting LDES Service stream...");
@@ -13,10 +12,10 @@ export async function ldesService() {
     await fetch(OXIGRAPH_URL, {
       method: 'DELETE'
     });
-    console.log("LDESTSS Oxigraph store cleared on port 7879.");
+    console.log("LDES Oxigraph store cleared on port 7879.");
 
     const ldesClient = replicateLDES({
-      url: "https://shehabeldeenayman.github.io/Mol_sluis_Dessel_Usecase/LDES/LDES.trig",
+      url: ,
       fetchOptions: { redirect: "follow" }
     });
 

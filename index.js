@@ -1,15 +1,5 @@
 import express from 'express';
 import cors from 'cors'
-//import ldesRouter from './routes/ldes.js'; // Import your new route file
-//import { ingestData,ingestToOxigraph } from './services/ldesService.js';
-//import { ingestData } from './models/ldesService.js';
-
-//import { queryGraphDB } from './routes/ldes/ldesSPARQLengine.js';
-// import { RiverStage1Year } from './routes/ldes/RiverStage1Year.js';
-// import {RiverDischarge1Year} from './routes/ldes/RiverDischarge1Year.js'
-//import {ldesTssService} from './models/ldesTssService.js'
-//import {RiverDischarge1YearTSS} from './routes/ldestss/RiverDischarge1YearTSS.js'
-//import {RiverStage1YearTSS} from './routes/ldestss/RiverStage1YearTSS.js'
 import {OXIGRAPH_BASE_URL_LDESTSS,RiverStage1YearTSSquery,RiverDischarge1YearTSSquery,data_url_LDESTSS} from './queries/LDESTSSquery.js'
 import {OXIGRAPH_BASE_URL_LDES,RiverDischarge1YearLDESquery,RiverStage1YearLDESquery,data_url_LDES} from './queries/LDESquery.js'
 import {ldestssOxigraphRoute} from './routes/ldestssOxigraphRoute.js'

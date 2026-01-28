@@ -1,4 +1,4 @@
-export async function ldesRoute(req, res, sparqlQuery, OXIGRAPH_BASE_URL_LDES) {
+export async function ldesOxigraphRoute(req, res, sparqlQuery, OXIGRAPH_BASE_URL_LDES) {
   const queryEndpoint = `${OXIGRAPH_BASE_URL_LDES}query?query=${encodeURIComponent(sparqlQuery)}`;
 
   try {

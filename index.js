@@ -12,9 +12,9 @@ import cors from 'cors'
 //import {RiverStage1YearTSS} from './routes/ldestss/RiverStage1YearTSS.js'
 import {OXIGRAPH_BASE_URL_LDESTSS,RiverStage1YearTSSquery,RiverDischarge1YearTSSquery,data_url_LDESTSS} from './queries/LDESTSSquery.js'
 import {OXIGRAPH_BASE_URL_LDES,RiverDischarge1YearLDESquery,RiverStage1YearLDESquery,data_url_LDES} from './queries/LDESquery.js'
-import {ldestssRoute} from './routes/ldestssRoute.js'
-import { ldesRoute } from './routes/ldesRoute.js';
-import {modelHandler} from './models/modelHandler.js'
+import {ldestssOxigraphRoute} from './routes/ldestssOxigraphRoute.js'
+import { ldesOxigraphRoute } from './routes/ldesOxigraphRoute.js';
+import {OxigraphHandler} from './models/OxigraphHandler.js'
 import { VirtuosoHandler } from './models/VirtuosoHandler.js';
 
 const app = express();
@@ -29,16 +29,16 @@ app.use(cors({
 }));
 
     app.get('/ldestss/RiverDischarge1Year', async (req, res) => {
-  return ldestssRoute(req, res, RiverDischarge1YearTSSquery, OXIGRAPH_BASE_URL_LDESTSS);
+  return ldestssOxigraphRoute(req, res, RiverDischarge1YearTSSquery, OXIGRAPH_BASE_URL_LDESTSS);
 });
 app.get('/ldestss/RiverStage1Year', async (req, res) => {
-  return ldestssRoute(req, res, RiverStage1YearTSSquery, OXIGRAPH_BASE_URL_LDESTSS);
+  return ldestssOxigraphRoute(req, res, RiverStage1YearTSSquery, OXIGRAPH_BASE_URL_LDESTSS);
 });
 app.get('/ldes/RiverDischarge1Year', async (req, res) => {
-  return ldesRoute(req, res, RiverDischarge1YearLDESquery, OXIGRAPH_BASE_URL_LDES);
+  return ldesOxigraphRoute(req, res, RiverDischarge1YearLDESquery, OXIGRAPH_BASE_URL_LDES);
 });
 app.get('/ldes/RiverStage1Year', async (req, res) => {
-  return ldesRoute(req, res, RiverStage1YearLDESquery, OXIGRAPH_BASE_URL_LDES);
+  return ldesOxigraphRoute(req, res, RiverStage1YearLDESquery, OXIGRAPH_BASE_URL_LDES);
 });
 
 // app.get('/ldes/RiverStage1Year', RiverStage1Year);
@@ -50,7 +50,7 @@ try {
     console.log("Initializing LDESTSS data...");
     // 1. Capture the start time
     var startTime = Date.now();
-    await modelHandler(OXIGRAPH_BASE_URL_LDESTSS, data_url_LDESTSS, "LDESTSS", 7878).then(() => {
+    await OxigraphHandler(OXIGRAPH_BASE_URL_LDESTSS, data_url_LDESTSS, "LDESTSS", 7878).then(() => {
       // 3. Capture end time when promise resolves
       const endTime = Date.now();
       
@@ -61,7 +61,7 @@ try {
     });
      startTime = Date.now();
 
-        await modelHandler(OXIGRAPH_BASE_URL_LDES, data_url_LDES, "LDES", 7879).then(() => {
+        await OxigraphHandler(OXIGRAPH_BASE_URL_LDES, data_url_LDES, "LDES", 7879).then(() => {
       // 3. Capture end time when promise resolves
       const endTime = Date.now();
       

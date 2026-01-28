@@ -1,7 +1,7 @@
 import { replicateLDES } from "ldes-client";
 import { Writer } from "n3";
 
-export async function modelHandler(OXIGRAPH_URL, data_url_LDESTSS, type, portno) {
+export async function OxigraphHandler(OXIGRAPH_URL, data_url_LDESTSS, type, portno) {
   console.log(`Starting ${type} Service stream...`);
   const allQuads = [];
 

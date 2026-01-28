@@ -68,7 +68,7 @@ async function uploadToVirtuoso(quads, url, graphName, type) {
 
     const gspUrl = `${url}?graph=${encodeURIComponent(graphName)}`;
     
-    console.log(`Sending data to Virtuoso GSP: ${gspUrl}`);
+    //console.log(`Sending data to Virtuoso GSP: ${gspUrl}`);
 
     const response = await fetch(gspUrl, {
       method: 'PUT', 

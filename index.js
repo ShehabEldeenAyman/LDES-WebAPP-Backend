@@ -49,7 +49,7 @@ async function startServer() {
 try {
     console.log("Initializing LDESTSS data...");
     // 1. Capture the start time
-    const startTime = Date.now();
+    var startTime = Date.now();
     await modelHandler(OXIGRAPH_BASE_URL_LDESTSS, data_url_LDESTSS, "LDESTSS", 7878).then(() => {
       // 3. Capture end time when promise resolves
       const endTime = Date.now();
@@ -59,6 +59,7 @@ try {
       
       console.log(`LDESTSS Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
+     startTime = Date.now();
 
         await modelHandler(OXIGRAPH_BASE_URL_LDES, data_url_LDES, "LDES", 7879).then(() => {
       // 3. Capture end time when promise resolves
@@ -69,7 +70,7 @@ try {
       
       console.log(`LDES Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
-
+startTime = Date.now();
     await VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDES, "LDES", "http://example.org/graph/ldes").then(() => {
       // 3. Capture end time when promise resolves
       const endTime = Date.now();
@@ -79,8 +80,16 @@ try {
       
       console.log(`LDES Virtuoso ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
-
-
+startTime = Date.now();
+        await VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDESTSS, "LDESTSS", "http://example.org/graph/ldestss").then(() => {
+      // 3. Capture end time when promise resolves
+      const endTime = Date.now();
+      
+      // Calculate duration in seconds
+      const durationSeconds = (endTime - startTime) / 1000;
+      
+      console.log(`LDESTSS Virtuoso ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+    });
       
     
     // // 2. Start ingestion in the background

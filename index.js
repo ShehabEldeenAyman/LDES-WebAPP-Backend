@@ -15,6 +15,7 @@ import {OXIGRAPH_BASE_URL_LDES,RiverDischarge1YearLDESquery,RiverStage1YearLDESq
 import {ldestssRoute} from './routes/ldestssRoute.js'
 import { ldesRoute } from './routes/ldesRoute.js';
 import {modelHandler} from './models/modelHandler.js'
+import { VirtuosoHandler } from './models/VirtuosoHandler.js';
 
 const app = express();
 const PORT = 3000;
@@ -56,7 +57,7 @@ try {
       // Calculate duration in seconds
       const durationSeconds = (endTime - startTime) / 1000;
       
-      console.log(`LDESTSS ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+      console.log(`LDESTSS Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
 
         await modelHandler(OXIGRAPH_BASE_URL_LDES, data_url_LDES, "LDES", 7879).then(() => {
@@ -66,7 +67,17 @@ try {
       // Calculate duration in seconds
       const durationSeconds = (endTime - startTime) / 1000;
       
-      console.log(`LDES ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+      console.log(`LDES Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+    });
+
+    await VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDES, "LDES", "http://example.org/graph/ldes").then(() => {
+      // 3. Capture end time when promise resolves
+      const endTime = Date.now();
+      
+      // Calculate duration in seconds
+      const durationSeconds = (endTime - startTime) / 1000;
+      
+      console.log(`LDES Virtuoso ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
 
 

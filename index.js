@@ -7,9 +7,16 @@ import { ldesOxigraphRoute } from './routes/ldesOxigraphRoute.js';
 import {OxigraphHandler} from './models/OxigraphHandler.js'
 import { VirtuosoHandler } from './models/VirtuosoHandler.js';
 import {ldesVirtuosoRoute} from './routes/ldesVirtuosoRoute.js';
+import {ldestssVirtuosoRoute} from './routes/ldestssVirtuosoRoute.js';
+import { benchmarks } from './routes/benchmarks.js';
 
 const app = express();
 const PORT = 3000;
+
+var oxigraphLDES_time = null;
+var oxigraphLDESTSS_time = null;
+var virtuosoLDES_time = null;
+var virtuosoLDESTSS_time = null;
 
 app.use(express.json());
 // Replace the simple cors() with this:
@@ -19,16 +26,16 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Accept']
 }));
 
-    app.get('/ldestss/RiverDischarge1Year', async (req, res) => {
+    app.get('/ldestssOxigraph/RiverDischarge1Year', async (req, res) => {
   return ldestssOxigraphRoute(req, res, RiverDischarge1YearTSSquery, OXIGRAPH_BASE_URL_LDESTSS);
 });
-app.get('/ldestss/RiverStage1Year', async (req, res) => {
+app.get('/ldestssOxigraph/RiverStage1Year', async (req, res) => {
   return ldestssOxigraphRoute(req, res, RiverStage1YearTSSquery, OXIGRAPH_BASE_URL_LDESTSS);
 });
-app.get('/ldes/RiverDischarge1Year', async (req, res) => {
+app.get('/ldesOxigraph/RiverDischarge1Year', async (req, res) => {
   return ldesOxigraphRoute(req, res, RiverDischarge1YearLDESquery, OXIGRAPH_BASE_URL_LDES);
 });
-app.get('/ldes/RiverStage1Year', async (req, res) => {
+app.get('/ldesOxigraph/RiverStage1Year', async (req, res) => {
   return ldesOxigraphRoute(req, res, RiverStage1YearLDESquery, OXIGRAPH_BASE_URL_LDES);
 });
 app.get('/ldesVirtuoso/RiverDischarge1Year', async (req, res) => {
@@ -37,10 +44,15 @@ app.get('/ldesVirtuoso/RiverDischarge1Year', async (req, res) => {
 app.get('/ldesVirtuoso/RiverStage1Year', async (req, res) => {
   return ldesVirtuosoRoute(req, res, RiverStage1YearLDESquery, "http://localhost:8890/sparql");
 });
-
-// app.get('/ldes/RiverStage1Year', RiverStage1Year);
-// app.get('/ldes/RiverDischarge1Year', RiverDischarge1Year);
-
+app.get('/ldestssVirtuoso/RiverDischarge1Year', async (req, res) => {
+  return ldestssVirtuosoRoute(req, res, RiverDischarge1YearTSSquery, "http://localhost:8890/sparql");
+});
+app.get('/ldestssVirtuoso/RiverStage1Year', async (req, res) => {
+  return ldestssVirtuosoRoute(req, res, RiverStage1YearTSSquery, "http://localhost:8890/sparql");
+});
+app.get('/benchmarks', (req, res) => {
+  benchmarks(req, res, oxigraphLDESTSS_time, oxigraphLDES_time, virtuosoLDESTSS_time, virtuosoLDES_time);
+});
 
 async function startServer() {
 try {
@@ -53,6 +65,7 @@ try {
       
       // Calculate duration in seconds
       const durationSeconds = (endTime - startTime) / 1000;
+      oxigraphLDESTSS_time = durationSeconds;
       
       console.log(`LDESTSS Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
@@ -64,6 +77,7 @@ try {
       
       // Calculate duration in seconds
       const durationSeconds = (endTime - startTime) / 1000;
+      oxigraphLDES_time = durationSeconds;
       
       console.log(`LDES Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
@@ -74,6 +88,7 @@ startTime = Date.now();
       
       // Calculate duration in seconds
       const durationSeconds = (endTime - startTime) / 1000;
+      virtuosoLDES_time = durationSeconds;
       
       console.log(`LDES Virtuoso ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
@@ -84,22 +99,11 @@ startTime = Date.now();
       
       // Calculate duration in seconds
       const durationSeconds = (endTime - startTime) / 1000;
+      virtuosoLDESTSS_time = durationSeconds;
       
       console.log(`LDESTSS Virtuoso ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
       
-    
-    // // 2. Start ingestion in the background
-    // await ingestData(OXIGRAPH_URL).then(() => {
-    //   // 3. Capture end time when promise resolves
-    //   const endTime = Date.now();
-      
-    //   // Calculate duration in seconds
-    //   const durationSeconds = (endTime - startTime) / 1000;
-      
-    //   console.log(`Background ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    // });
-    
     console.log("Initialization finished. Starting web server...");
 
     // 4. Only start listening after data is ready
@@ -119,3 +123,54 @@ startTime = Date.now();
 
 // 5. Execute the startup function
 startServer();
+
+// async function startServer() { //parallel version
+//   try {
+//     console.log("Initializing data in parallel...");
+//     const globalStartTime = Date.now();
+
+//     // Wrap your handlers in helper functions to track their individual timing
+//     const runOxigraphLDESTSS = () => {
+//       const start = Date.now();
+//       return OxigraphHandler(OXIGRAPH_BASE_URL_LDESTSS, data_url_LDESTSS, "LDESTSS", 7878)
+//         .then(() => console.log(`LDESTSS Oxigraph finished in ${((Date.now() - start) / 1000).toFixed(2)}s`));
+//     };
+
+//     const runOxigraphLDES = () => {
+//       const start = Date.now();
+//       return OxigraphHandler(OXIGRAPH_BASE_URL_LDES, data_url_LDES, "LDES", 7879)
+//         .then(() => console.log(`LDES Oxigraph finished in ${((Date.now() - start) / 1000).toFixed(2)}s`));
+//     };
+
+//     const runVirtuosoLDES = () => {
+//       const start = Date.now();
+//       return VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDES, "LDES", "http://example.org/graph/ldes")
+//         .then(() => console.log(`LDES Virtuoso finished in ${((Date.now() - start) / 1000).toFixed(2)}s`));
+//     };
+
+//     const runVirtuosoLDESTSS = () => {
+//       const start = Date.now();
+//       return VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDESTSS, "LDESTSS", "http://example.org/graph/ldestss")
+//         .then(() => console.log(`LDESTSS Virtuoso finished in ${((Date.now() - start) / 1000).toFixed(2)}s`));
+//     };
+
+//     // Execute all four tasks in parallel
+//     await Promise.all([
+//       runOxigraphLDESTSS(),
+//       runOxigraphLDES(),
+//       runVirtuosoLDES(),
+//       runVirtuosoLDESTSS()
+//     ]);
+
+//     const totalDuration = (Date.now() - globalStartTime) / 1000;
+//     console.log(`Total Initialization finished in ${totalDuration.toFixed(2)} seconds.`);
+
+//     app.listen(PORT, () => {
+//       console.log(`Server running on http://localhost:${PORT}`);
+//     });
+
+//   } catch (error) {
+//     console.error("Failed to start server:", error);
+//     process.exit(1);
+//   }
+// }

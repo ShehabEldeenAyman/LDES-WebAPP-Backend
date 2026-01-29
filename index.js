@@ -10,7 +10,7 @@ import {ldesVirtuosoRoute} from './routes/ldesVirtuosoRoute.js';
 import {ldestssVirtuosoRoute} from './routes/ldestssVirtuosoRoute.js';
 import { benchmarks } from './routes/benchmarks.js';
 import {OxigraphTTLHandler} from './models/OxigraphTtlHandler.js';
-import {CSV_URL,ttl_URL,OXIGRAPH_BASE_URL_TTL,data_url_TTL} from './constants/constants.js';
+import {CSV_URL,ttl_URL,OXIGRAPH_BASE_URL_TTL,data_url_TTL,VIRTUOSO_URL} from './constants/constants.js';
 import {VirtuosoTTLHandler} from './models/VirtuosoTTLHandler.js';
 
 const app = express();
@@ -44,19 +44,27 @@ app.get('/ldesOxigraph/RiverStage1Year', async (req, res) => {
   return ldesOxigraphRoute(req, res, RiverStage1YearLDESquery, OXIGRAPH_BASE_URL_LDES);
 });
 app.get('/ldesVirtuoso/RiverDischarge1Year', async (req, res) => {
-  return ldesVirtuosoRoute(req, res, RiverDischarge1YearLDESquery, "http://localhost:8890/sparql");
+  return ldesVirtuosoRoute(req, res, RiverDischarge1YearLDESquery, VIRTUOSO_URL);
 });
 app.get('/ldesVirtuoso/RiverStage1Year', async (req, res) => {
-  return ldesVirtuosoRoute(req, res, RiverStage1YearLDESquery, "http://localhost:8890/sparql");
+  return ldesVirtuosoRoute(req, res, RiverStage1YearLDESquery, VIRTUOSO_URL);
 });
 app.get('/ldestssVirtuoso/RiverDischarge1Year', async (req, res) => {
-  return ldestssVirtuosoRoute(req, res, RiverDischarge1YearTSSquery, "http://localhost:8890/sparql");
+  return ldestssVirtuosoRoute(req, res, RiverDischarge1YearTSSquery, VIRTUOSO_URL);
 });
 app.get('/ldestssVirtuoso/RiverStage1Year', async (req, res) => {
-  return ldestssVirtuosoRoute(req, res, RiverStage1YearTSSquery, "http://localhost:8890/sparql");
+  return ldestssVirtuosoRoute(req, res, RiverStage1YearTSSquery, VIRTUOSO_URL);
 });
 app.get('/benchmarks', (req, res) => {
   benchmarks(req, res, oxigraphLDESTSS_time, oxigraphLDES_time, virtuosoLDESTSS_time, virtuosoLDES_time,oxigraphTTL_time,virtuosoTTL_time);
+});
+app.get('/csv', (req, res) => {
+  // This will send a 302 redirect status to the browser
+  res.redirect(CSV_URL);
+});
+app.get('/ttl', (req, res) => {
+  // This will send a 302 redirect status to the browser
+  res.redirect(ttl_URL);
 });
 
 async function startServer() {

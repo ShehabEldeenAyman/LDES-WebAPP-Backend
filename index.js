@@ -11,6 +11,7 @@ import {ldestssVirtuosoRoute} from './routes/ldestssVirtuosoRoute.js';
 import { benchmarks } from './routes/benchmarks.js';
 import {OxigraphTTLHandler} from './models/OxigraphTtlHandler.js';
 import {CSV_URL,ttl_URL,OXIGRAPH_BASE_URL_TTL,data_url_TTL} from './constants/constants.js';
+import {VirtuosoTTLHandler} from './models/VirtuosoTTLHandler.js';
 
 const app = express();
 const PORT = 3000;
@@ -20,6 +21,7 @@ var oxigraphLDESTSS_time = null;
 var oxigraphTTL_time = null;
 var virtuosoLDES_time = null;
 var virtuosoLDESTSS_time = null;
+var virtuosoTTL_time = null;
 
 app.use(express.json());
 // Replace the simple cors() with this:
@@ -54,7 +56,7 @@ app.get('/ldestssVirtuoso/RiverStage1Year', async (req, res) => {
   return ldestssVirtuosoRoute(req, res, RiverStage1YearTSSquery, "http://localhost:8890/sparql");
 });
 app.get('/benchmarks', (req, res) => {
-  benchmarks(req, res, oxigraphLDESTSS_time, oxigraphLDES_time, virtuosoLDESTSS_time, virtuosoLDES_time,oxigraphTTL_time);
+  benchmarks(req, res, oxigraphLDESTSS_time, oxigraphLDES_time, virtuosoLDESTSS_time, virtuosoLDES_time,oxigraphTTL_time,virtuosoTTL_time);
 });
 
 async function startServer() {
@@ -118,6 +120,18 @@ startTime = Date.now();
       console.log(`TTL Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
       
+startTime = Date.now();
+        await VirtuosoTTLHandler("http://localhost:8890/sparql-graph-crud", data_url_TTL, "TTL", "http://example.org/graph/ttl").then(() => {
+      // 3. Capture end time when promise resolves
+      const endTime = Date.now();
+      
+      // Calculate duration in seconds
+      const durationSeconds = (endTime - startTime) / 1000;
+      virtuosoTTL_time = durationSeconds;
+      
+      console.log(`TTL Virtuoso ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+    });
+
     console.log("Initialization finished. Starting web server...");
 
     // 4. Only start listening after data is ready

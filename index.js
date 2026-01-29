@@ -6,6 +6,7 @@ import {ldestssOxigraphRoute} from './routes/ldestssOxigraphRoute.js'
 import { ldesOxigraphRoute } from './routes/ldesOxigraphRoute.js';
 import {OxigraphHandler} from './models/OxigraphHandler.js'
 import { VirtuosoHandler } from './models/VirtuosoHandler.js';
+import {ldesVirtuosoRoute} from './routes/ldesVirtuosoRoute.js';
 
 const app = express();
 const PORT = 3000;
@@ -29,6 +30,12 @@ app.get('/ldes/RiverDischarge1Year', async (req, res) => {
 });
 app.get('/ldes/RiverStage1Year', async (req, res) => {
   return ldesOxigraphRoute(req, res, RiverStage1YearLDESquery, OXIGRAPH_BASE_URL_LDES);
+});
+app.get('/ldesVirtuoso/RiverDischarge1Year', async (req, res) => {
+  return ldesVirtuosoRoute(req, res, RiverDischarge1YearLDESquery, "http://localhost:8890/sparql");
+});
+app.get('/ldesVirtuoso/RiverStage1Year', async (req, res) => {
+  return ldesVirtuosoRoute(req, res, RiverStage1YearLDESquery, "http://localhost:8890/sparql");
 });
 
 // app.get('/ldes/RiverStage1Year', RiverStage1Year);

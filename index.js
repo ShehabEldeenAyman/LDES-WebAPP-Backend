@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors'
-import {OXIGRAPH_BASE_URL_LDESTSS,RiverStage1YearTSSquery,RiverDischarge1YearTSSquery,data_url_LDESTSS} from './queries/LDESTSSquery.js'
-import {OXIGRAPH_BASE_URL_LDES,RiverDischarge1YearLDESquery,RiverStage1YearLDESquery,data_url_LDES} from './queries/LDESquery.js'
+import {OXIGRAPH_BASE_URL_LDESTSS,RiverStage1YearTSSquery,RiverDischarge1YearTSSquery,data_url_LDESTSS} from './constants/LDESTSSquery.js'
+import {OXIGRAPH_BASE_URL_LDES,RiverDischarge1YearLDESquery,RiverStage1YearLDESquery,data_url_LDES} from './constants/LDESquery.js'
 import {ldestssOxigraphRoute} from './routes/ldestssOxigraphRoute.js'
 import { ldesOxigraphRoute } from './routes/ldesOxigraphRoute.js';
 import {OxigraphHandler} from './models/OxigraphHandler.js'
@@ -9,12 +9,15 @@ import { VirtuosoHandler } from './models/VirtuosoHandler.js';
 import {ldesVirtuosoRoute} from './routes/ldesVirtuosoRoute.js';
 import {ldestssVirtuosoRoute} from './routes/ldestssVirtuosoRoute.js';
 import { benchmarks } from './routes/benchmarks.js';
+import {OxigraphTTLHandler} from './models/OxigraphTtlHandler.js';
+import {CSV_URL,ttl_URL,OXIGRAPH_BASE_URL_TTL,data_url_TTL} from './constants/constants.js';
 
 const app = express();
 const PORT = 3000;
 
 var oxigraphLDES_time = null;
 var oxigraphLDESTSS_time = null;
+var oxigraphTTL_time = null;
 var virtuosoLDES_time = null;
 var virtuosoLDESTSS_time = null;
 
@@ -51,7 +54,7 @@ app.get('/ldestssVirtuoso/RiverStage1Year', async (req, res) => {
   return ldestssVirtuosoRoute(req, res, RiverStage1YearTSSquery, "http://localhost:8890/sparql");
 });
 app.get('/benchmarks', (req, res) => {
-  benchmarks(req, res, oxigraphLDESTSS_time, oxigraphLDES_time, virtuosoLDESTSS_time, virtuosoLDES_time);
+  benchmarks(req, res, oxigraphLDESTSS_time, oxigraphLDES_time, virtuosoLDESTSS_time, virtuosoLDES_time,oxigraphTTL_time);
 });
 
 async function startServer() {
@@ -102,6 +105,17 @@ startTime = Date.now();
       virtuosoLDESTSS_time = durationSeconds;
       
       console.log(`LDESTSS Virtuoso ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+    });
+startTime = Date.now();
+          await OxigraphTTLHandler(OXIGRAPH_BASE_URL_TTL, data_url_TTL, "TTL", 7877).then(() => {
+      // 3. Capture end time when promise resolves
+      const endTime = Date.now();
+      
+      // Calculate duration in seconds
+      const durationSeconds = (endTime - startTime) / 1000;
+      oxigraphTTL_time = durationSeconds;
+      
+      console.log(`TTL Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
       
     console.log("Initialization finished. Starting web server...");

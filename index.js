@@ -13,7 +13,8 @@ import {OxigraphTTLHandler} from './models/OxigraphTtlHandler.js';
 import {CSV_URL,ttl_URL,OXIGRAPH_BASE_URL_TTL,data_url_TTL,VIRTUOSO_URL} from './constants/constants.js';
 import {VirtuosoTTLHandler} from './models/VirtuosoTTLHandler.js';
 import {ttlVirtuosoRoute} from './routes/ttlVirtuosoRoute.js';
-import {RiverDischargeTTLquery,RiverStageTTLquery} from './constants/TTLquery.js'
+import {RiverDischargeTTLqueryVirtuoso,RiverStageTTLqueryVirtuoso,RiverDischargeTTLqueryOxigraph,RiverStageTTLqueryOxigraph} from './constants/TTLquery.js'
+import { ttlOxigraphRoute } from './routes/ttlOxigraphRoute.js';
 
 const app = express();
 const PORT = 3000;
@@ -33,30 +34,101 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Accept']
 }));
 
-    app.get('/ldestssOxigraph/RiverDischarge1Year', async (req, res) => {
-  return ldestssOxigraphRoute(req, res, RiverDischarge1YearTSSquery, OXIGRAPH_BASE_URL_LDESTSS);
+// --- PAGINATED ROUTES ---
+
+// 1. Oxigraph LDESTSS
+app.get('/oxigraph/ldestss/RiverDischarge1Year', (req, res) => {
+    const limit = req.query.limit || 100;
+    const offset = req.query.offset || 0;
+    const paginatedQuery = `${RiverDischarge1YearTSSquery} LIMIT ${limit} OFFSET ${offset}`;
+    ldestssOxigraphRoute(req, res, paginatedQuery, OXIGRAPH_BASE_URL_LDESTSS);
 });
-app.get('/ldestssOxigraph/RiverStage1Year', async (req, res) => {
-  return ldestssOxigraphRoute(req, res, RiverStage1YearTSSquery, OXIGRAPH_BASE_URL_LDESTSS);
+
+app.get('/oxigraph/ldestss/RiverStage1Year', (req, res) => {
+    const limit = req.query.limit || 100;
+    const offset = req.query.offset || 0;
+    const paginatedQuery = `${RiverStage1YearTSSquery} LIMIT ${limit} OFFSET ${offset}`;
+    ldestssOxigraphRoute(req, res, paginatedQuery, OXIGRAPH_BASE_URL_LDESTSS);
 });
-app.get('/ldesOxigraph/RiverDischarge1Year', async (req, res) => {
-  return ldesOxigraphRoute(req, res, RiverDischarge1YearLDESquery, OXIGRAPH_BASE_URL_LDES);
+
+// 2. Oxigraph LDES
+app.get('/oxigraph/ldes/RiverDischarge1Year', (req, res) => {
+    const limit = req.query.limit || 100;
+    const offset = req.query.offset || 0;
+    const paginatedQuery = `${RiverDischarge1YearLDESquery} LIMIT ${limit} OFFSET ${offset}`;
+    ldesOxigraphRoute(req, res, paginatedQuery, OXIGRAPH_BASE_URL_LDES);
 });
-app.get('/ldesOxigraph/RiverStage1Year', async (req, res) => {
-  return ldesOxigraphRoute(req, res, RiverStage1YearLDESquery, OXIGRAPH_BASE_URL_LDES);
+
+app.get('/oxigraph/ldes/RiverStage1Year', (req, res) => {
+    const limit = req.query.limit || 100;
+    const offset = req.query.offset || 0;
+    const paginatedQuery = `${RiverStage1YearLDESquery} LIMIT ${limit} OFFSET ${offset}`;
+    ldesOxigraphRoute(req, res, paginatedQuery, OXIGRAPH_BASE_URL_LDES);
 });
-app.get('/ldesVirtuoso/RiverDischarge1Year', async (req, res) => {
-  return ldesVirtuosoRoute(req, res, RiverDischarge1YearLDESquery, VIRTUOSO_URL);
+
+// 3. Virtuoso LDES
+app.get('/virtuoso/ldes/RiverDischarge1Year', (req, res) => {
+    const limit = req.query.limit || 100;
+    const offset = req.query.offset || 0;
+    const paginatedQuery = `${RiverDischarge1YearLDESquery} LIMIT ${limit} OFFSET ${offset}`;
+    ldesVirtuosoRoute(req, res, paginatedQuery, "http://localhost:8890/sparql");
 });
-app.get('/ldesVirtuoso/RiverStage1Year', async (req, res) => {
-  return ldesVirtuosoRoute(req, res, RiverStage1YearLDESquery, VIRTUOSO_URL);
+
+app.get('/virtuoso/ldes/RiverStage1Year', (req, res) => {
+    const limit = req.query.limit || 100;
+    const offset = req.query.offset || 0;
+    const paginatedQuery = `${RiverStage1YearLDESquery} LIMIT ${limit} OFFSET ${offset}`;
+    ldesVirtuosoRoute(req, res, paginatedQuery, "http://localhost:8890/sparql");
 });
-app.get('/ldestssVirtuoso/RiverDischarge1Year', async (req, res) => {
-  return ldestssVirtuosoRoute(req, res, RiverDischarge1YearTSSquery, VIRTUOSO_URL);
+
+// 4. Virtuoso LDESTSS
+app.get('/virtuoso/ldestss/RiverDischarge1Year', (req, res) => {
+    const limit = req.query.limit || 100;
+    const offset = req.query.offset || 0;
+    const paginatedQuery = `${RiverDischarge1YearTSSquery} LIMIT ${limit} OFFSET ${offset}`;
+    ldestssVirtuosoRoute(req, res, paginatedQuery, "http://localhost:8890/sparql");
 });
-app.get('/ldestssVirtuoso/RiverStage1Year', async (req, res) => {
-  return ldestssVirtuosoRoute(req, res, RiverStage1YearTSSquery, VIRTUOSO_URL);
+
+app.get('/virtuoso/ldestss/RiverStage1Year', (req, res) => {
+    const limit = req.query.limit || 100;
+    const offset = req.query.offset || 0;
+    const paginatedQuery = `${RiverStage1YearTSSquery} LIMIT ${limit} OFFSET ${offset}`;
+    ldestssVirtuosoRoute(req, res, paginatedQuery, "http://localhost:8890/sparql");
 });
+
+// 5. Virtuoso TTL (Plain Turtle)
+app.get('/TTLvirtuoso/RiverDischarge1Year', (req, res) => {
+    const limit = req.query.limit || 100;
+    const offset = req.query.offset || 0;
+    const paginatedQuery = `${RiverDischargeTTLqueryVirtuoso} LIMIT ${limit} OFFSET ${offset}`;
+    ttlVirtuosoRoute(req, res, paginatedQuery, "http://localhost:8890/sparql");
+});
+
+app.get('/TTLvirtuoso/RiverStage1Year', (req, res) => {
+    const limit = req.query.limit || 100;
+    const offset = req.query.offset || 0;
+    const paginatedQuery = `${RiverStageTTLqueryVirtuoso} LIMIT ${limit} OFFSET ${offset}`;
+    ttlVirtuosoRoute(req, res, paginatedQuery, "http://localhost:8890/sparql");
+});
+
+// Oxigraph TTL - River Discharge
+app.get('/TTloxigraph/RiverDischarge1Year', (req, res) => {
+    const limit = req.query.limit || 100;
+    const offset = req.query.offset || 0;
+    const paginatedQuery = `${RiverDischargeTTLqueryOxigraph} LIMIT ${limit} OFFSET ${offset}`;
+    
+    ttlOxigraphRoute(req, res, paginatedQuery, OXIGRAPH_BASE_URL_TTL);
+});
+
+// Oxigraph TTL - River Stage
+app.get('/TTloxigraph/RiverStage1Year', (req, res) => {
+    const limit = req.query.limit || 100;
+    const offset = req.query.offset || 0;
+    const paginatedQuery = `${RiverStageTTLqueryOxigraph} LIMIT ${limit} OFFSET ${offset}`;
+    
+    ttlOxigraphRoute(req, res, paginatedQuery, OXIGRAPH_BASE_URL_TTL);
+});
+
 app.get('/benchmarks', (req, res) => {
   benchmarks(req, res, oxigraphLDESTSS_time, oxigraphLDES_time, virtuosoLDESTSS_time, virtuosoLDES_time,oxigraphTTL_time,virtuosoTTL_time);
 });
@@ -67,21 +139,6 @@ app.get('/csv', (req, res) => {
 app.get('/ttl', (req, res) => {
   // This will send a 302 redirect status to the browser
   res.redirect(ttl_URL);
-});
-// app.get('/TTLvirtuoso/RiverDischarge1Year', (req, res) => {
-//   ttlVirtuosoRoute(req, res, RiverDischargeTTLquery, "http://localhost:8890/sparql");
-// });
-
-app.get('/TTLvirtuoso/RiverDischarge1Year', (req, res) => {
-  const limit = req.query.limit || 100;
-  const offset = req.query.offset || 0;
-  const paginatedQuery = `${RiverDischargeTTLquery} LIMIT ${limit} OFFSET ${offset}`;
-  ttlVirtuosoRoute(req, res, paginatedQuery, "http://localhost:8890/sparql");
-});
-
-// Route for TTL River Stage
-app.get('/TTLvirtuoso/RiverStage1Year', (req, res) => {
-  ttlVirtuosoRoute(req, res, RiverStageTTLquery, "http://localhost:8890/sparql");
 });
 
 async function startServer() {

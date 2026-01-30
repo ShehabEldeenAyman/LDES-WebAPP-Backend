@@ -1,4 +1,4 @@
-export const RiverDischargeTTLquery = `
+export const RiverDischargeTTLqueryVirtuoso = `
   PREFIX sosa: <http://www.w3.org/ns/sosa/>
   PREFIX ex: <http://example.com/ns#>
   PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -17,7 +17,7 @@ export const RiverDischargeTTLquery = `
   
 `;
 
-export const RiverStageTTLquery = `
+export const RiverStageTTLqueryVirtuoso = `
   PREFIX sosa: <http://www.w3.org/ns/sosa/>
   PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
@@ -32,4 +32,44 @@ export const RiverStageTTLquery = `
   }
   ORDER BY DESC(?time)
   
+`;
+
+export const RiverDischargeTTLqueryOxigraph = `
+  PREFIX sosa: <http://www.w3.org/ns/sosa/>
+  PREFIX ex: <http://example.com/ns#>
+  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+  SELECT ?subject ?value ?time ?runoffvalue
+  WHERE {
+    GRAPH ?g {
+      ?subject a sosa:Observation ;
+               sosa:observedProperty "River Discharge" ;
+               sosa:hasSimpleResult ?value ;
+               sosa:resultTime ?time .
+      
+      OPTIONAL { ?subject ex:runoffValue ?runoffvalue . }
+      
+      # Use STRSTARTS to be safe if the data type is just a string
+      FILTER(STRSTARTS(STR(?time), "2025"))
+    }
+  }
+  ORDER BY DESC(?time)
+`;
+
+export const RiverStageTTLqueryOxigraph = `
+  PREFIX sosa: <http://www.w3.org/ns/sosa/>
+  PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+  SELECT ?subject ?value ?time  
+  WHERE {
+    GRAPH ?g {
+      ?subject a sosa:Observation ;
+               sosa:observedProperty "River Stage" ;
+               sosa:hasSimpleResult ?value ;
+               sosa:resultTime ?time .
+               
+      FILTER(STRSTARTS(STR(?time), "2020"))
+    }
+  }
+  ORDER BY DESC(?time)
 `;

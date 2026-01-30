@@ -2,3 +2,4 @@ export const CSV_URL = "https://shehabeldeenayman.github.io/Mol_sluis_Dessel_Use
 export const ttl_URL = "https://shehabeldeenayman.github.io/Mol_sluis_Dessel_Usecase/ttl/Mol_Sluis_Dessel_data.ttl";
 export const OXIGRAPH_BASE_URL_TTL = "http://localhost:7877/"; 
 export const data_url_TTL = "https://shehabeldeenayman.github.io/Mol_sluis_Dessel_Usecase/ttl/Mol_Sluis_Dessel_data.ttl";
+export const VIRTUOSO_URL = "http://localhost:8890/sparql";

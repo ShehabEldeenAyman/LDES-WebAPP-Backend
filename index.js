@@ -12,6 +12,8 @@ import { benchmarks } from './routes/benchmarks.js';
 import {OxigraphTTLHandler} from './models/OxigraphTtlHandler.js';
 import {CSV_URL,ttl_URL,OXIGRAPH_BASE_URL_TTL,data_url_TTL,VIRTUOSO_URL} from './constants/constants.js';
 import {VirtuosoTTLHandler} from './models/VirtuosoTTLHandler.js';
+import {ttlVirtuosoRoute} from './routes/ttlVirtuosoRoute.js';
+import {RiverDischargeTTLquery,RiverStageTTLquery} from './constants/TTLquery.js'
 
 const app = express();
 const PORT = 3000;
@@ -65,6 +67,21 @@ app.get('/csv', (req, res) => {
 app.get('/ttl', (req, res) => {
   // This will send a 302 redirect status to the browser
   res.redirect(ttl_URL);
+});
+// app.get('/TTLvirtuoso/RiverDischarge1Year', (req, res) => {
+//   ttlVirtuosoRoute(req, res, RiverDischargeTTLquery, "http://localhost:8890/sparql");
+// });
+
+app.get('/TTLvirtuoso/RiverDischarge1Year', (req, res) => {
+  const limit = req.query.limit || 100;
+  const offset = req.query.offset || 0;
+  const paginatedQuery = `${RiverDischargeTTLquery} LIMIT ${limit} OFFSET ${offset}`;
+  ttlVirtuosoRoute(req, res, paginatedQuery, "http://localhost:8890/sparql");
+});
+
+// Route for TTL River Stage
+app.get('/TTLvirtuoso/RiverStage1Year', (req, res) => {
+  ttlVirtuosoRoute(req, res, RiverStageTTLquery, "http://localhost:8890/sparql");
 });
 
 async function startServer() {

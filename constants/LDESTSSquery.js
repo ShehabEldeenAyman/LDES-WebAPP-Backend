@@ -1,6 +1,7 @@
 export const OXIGRAPH_BASE_URL_LDESTSS = "http://localhost:7878/"; // Base URL for Oxigraph
 export const data_url_LDESTSS = "https://shehabeldeenayman.github.io/Mol_sluis_Dessel_Usecase/LDESTSS/LDESTSS.trig";
- export const RiverStage1YearTSSquery = `
+
+ export const RiverStage1YearTSSquery = (limit, offset) => `
  PREFIX tss: <https://w3id.org/tss#>
 PREFIX sosa: <http://www.w3.org/ns/sosa/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -23,11 +24,12 @@ WHERE {
   }
 }
 ORDER BY ASC(?from)
-    
+    LIMIT ${limit}
+  OFFSET ${offset}
   `;
 
 
-export const RiverDischarge1YearTSSquery = `
+export const RiverDischarge1YearTSSquery = (limit, offset) => `
 PREFIX tss: <https://w3id.org/tss#>
 PREFIX sosa: <http://www.w3.org/ns/sosa/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -49,4 +51,6 @@ WHERE {
   }
 }
 ORDER BY ASC(?from)
+LIMIT ${limit}
+  OFFSET ${offset}
   `;

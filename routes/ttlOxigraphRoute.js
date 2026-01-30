@@ -10,7 +10,7 @@ export async function ttlOxigraphRoute(req, res, sparqlQuery, OXIGRAPH_BASE_URL)
     const result = await response.json();
     
     // DEBUG: Check this in your terminal to see if the database is actually finding rows
-    console.log(`Oxigraph returned ${result.results.bindings.length} rows.`);
+    //console.log(`Oxigraph returned ${result.results.bindings.length} rows.`);
 
 const formattedData = result.results.bindings.map(binding => {
   try {

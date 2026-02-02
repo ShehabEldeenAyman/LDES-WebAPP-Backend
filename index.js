@@ -130,7 +130,7 @@ app.get('/oxigraph/ttl/RiverDischarge1Year', cacheMiddleware, async (req, res) =
 app.get('/postgres/RiverDischarge1Year', async (req, res) => {
     try {
         const { limit, offset } = getPagination(req.query);
-        const startDate = '2024-01-01T00:00:00Z';
+        const startDate = '2025-01-01T00:00:00Z';
         const endDate = '2025-12-31T23:59:59Z';
         
         const data = await csvPostgresRoute('River Discharge', startDate, endDate, limit, offset);
@@ -144,10 +144,10 @@ app.get('/postgres/RiverDischarge1Year', async (req, res) => {
     }
 });
 
-app.get('/postgres/river-stage', async (req, res) => {
+app.get('/postgres/RiverStage1Year', async (req, res) => {
     try {
         const { limit, offset } = getPagination(req.query);
-        const startDate = '2024-01-01T00:00:00Z';
+        const startDate = '2025-01-01T00:00:00Z';
         const endDate = '2025-12-31T23:59:59Z';
         
         const data = await csvPostgresRoute('River Stage', startDate, endDate, limit, offset);

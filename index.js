@@ -16,6 +16,7 @@ import {ttlVirtuosoRoute} from './routes/ttlVirtuosoRoute.js';
 import {RiverDischargeTTLqueryVirtuoso,RiverStageTTLqueryVirtuoso,RiverDischargeTTLqueryOxigraph,RiverStageTTLqueryOxigraph} from './constants/TTLquery.js'
 import { ttlOxigraphRoute } from './routes/ttlOxigraphRoute.js';
 import { cacheMiddleware } from './cache.js';
+import { postgresHandler } from './models/PostgresHandler.js';
 
 const app = express();
 const PORT = 3000;
@@ -210,6 +211,15 @@ startTime = Date.now();
     });
 
     console.log("Initialization finished. Starting web server...");
+  startTime = Date.now();
+    await postgresHandler(CSV_URL).then(() => {
+      const endTime = Date.now();
+      const durationSeconds = (endTime - startTime) / 1000;
+      console.log(`CSV data ingestion into Postgres finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+    });
+
+
+
 
     // 4. Only start listening after data is ready
     app.listen(PORT, () => {

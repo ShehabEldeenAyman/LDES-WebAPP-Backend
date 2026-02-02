@@ -7,7 +7,7 @@ dotenv.config();
 const { Pool } = pkg;
 
 const pool = new Pool({
-user: process.env.DB_USER,
+    user: process.env.DB_USER,
     host: process.env.DB_HOST,
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
@@ -18,6 +18,19 @@ export const postgresHandler = async (url) => {
     const results = [];
     
     try {
+        // --- INSERT THE NEW LOGIC HERE ---
+        const createTableQuery = `
+          CREATE TABLE IF NOT EXISTS river_data (
+            id SERIAL PRIMARY KEY,
+            time TIMESTAMPTZ,
+            val FLOAT,
+            feature TEXT
+          );
+        `;
+        await pool.query(createTableQuery);
+        console.log("Verified table 'river_data' exists.");
+        // ---------------------------------
+
         // Request the file as a stream
         const response = await axios({
             method: 'get',
@@ -29,11 +42,12 @@ export const postgresHandler = async (url) => {
             response.data
                 .pipe(csv())
                 .on('data', (data) => {
-                    // FILTER SPECIFIC ATTRIBUTES HERE
-                    // Based on your use case, selecting specific river data:
+
+                    const rawValue = data.Value ? data.Value.trim() : "";
+
                     const filteredData = {
-                        timestamp: data.Timestamp, // Mapping example
-                        value: data.Value,
+                        timestamp: data.Timestamp,
+                        value: rawValue === "" ? null : rawValue,
                         feature: data.stationparameter_longname
                     };
                     results.push(filteredData);
@@ -41,9 +55,11 @@ export const postgresHandler = async (url) => {
                 .on('end', async () => {
                     try {
                         await pool.query('TRUNCATE TABLE river_data RESTART IDENTITY CASCADE;');
-                    console.log("Table cleared for fresh ingestion.");
+                        console.log("Table cleared for fresh ingestion.");
                         console.log(`Starting database insertion for ${results.length} rows...`);
+                        
                         for (const row of results) {
+                            // This query now matches the table structure created above
                             const query = 'INSERT INTO river_data(time, val, feature) VALUES($1, $2, $3)';
                             await pool.query(query, [row.timestamp, row.value, row.feature]);
                         }

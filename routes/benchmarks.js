@@ -1,4 +1,4 @@
-export async function benchmarks(req, res, oxigraphLDESTSS_time, oxigraphLDES_time, virtuosoLDESTSS_time, virtuosoLDES_time,oxigraphTTL_time,virtuosoTTL_time) {
+export async function benchmarks(req, res, oxigraphLDESTSS_time, oxigraphLDES_time, virtuosoLDESTSS_time, virtuosoLDES_time,oxigraphTTL_time,virtuosoTTL_time,postgresCSV_time) {
     try {
         // Validation: Ensure the benchmark times are actually provided
         // if (oxigraphLDES_time === undefined || virtuosoLDES_time === undefined || oxigraphLDESTSS_time === undefined || virtuosoLDESTSS_time === undefined || oxigraphTTL_time === undefined) {
@@ -11,7 +11,8 @@ export async function benchmarks(req, res, oxigraphLDESTSS_time, oxigraphLDES_ti
             virtuoso_time_series: virtuosoLDESTSS_time,
             virtuoso_standard_ldes: virtuosoLDES_time,
             oxigraph_ttl: oxigraphTTL_time,
-            virtuoso_ttl: virtuosoTTL_time
+            virtuoso_ttl: virtuosoTTL_time,
+            postgres_csv_ingestion: postgresCSV_time
 
         });
     } catch (error) {

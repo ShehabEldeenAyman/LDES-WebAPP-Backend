@@ -13,10 +13,11 @@ import {OxigraphTTLHandler} from './models/OxigraphTtlHandler.js';
 import {CSV_URL,ttl_URL,OXIGRAPH_BASE_URL_TTL,data_url_TTL,VIRTUOSO_URL} from './constants/constants.js';
 import {VirtuosoTTLHandler} from './models/VirtuosoTTLHandler.js';
 import {ttlVirtuosoRoute} from './routes/ttlVirtuosoRoute.js';
-import {RiverDischargeTTLqueryVirtuoso,RiverStageTTLqueryVirtuoso,RiverDischargeTTLqueryOxigraph,RiverStageTTLqueryOxigraph} from './constants/TTLquery.js'
+import {RiverDischarge1YearTTLqueryVirtuoso,RiverStage1YearTTLqueryVirtuoso,RiverDischarge1YearTTLqueryOxigraph,RiverStage1YearTTLqueryOxigraph} from './constants/TTLquery.js'
 import { ttlOxigraphRoute } from './routes/ttlOxigraphRoute.js';
 import { cacheMiddleware } from './cache.js';
 import { postgresHandler } from './models/PostgresHandler.js';
+import { csvPostgresRoute } from './routes/csvPostgresRoute.js';
 
 const app = express();
 const PORT = 3000;
@@ -27,6 +28,7 @@ var oxigraphTTL_time = null;
 var virtuosoLDES_time = null;
 var virtuosoLDESTSS_time = null;
 var virtuosoTTL_time = null;
+var postgresCSV_time = null;
 
 app.use(express.json());
 // Replace the simple cors() with this:
@@ -125,8 +127,42 @@ app.get('/oxigraph/ttl/RiverDischarge1Year', cacheMiddleware, async (req, res) =
     await ttlOxigraphRoute(req, res, query, OXIGRAPH_BASE_URL_TTL);
 });
 
+app.get('/postgres/RiverDischarge1Year', async (req, res) => {
+    try {
+        const { limit, offset } = getPagination(req.query);
+        const startDate = '2024-01-01T00:00:00Z';
+        const endDate = '2025-12-31T23:59:59Z';
+        
+        const data = await csvPostgresRoute('River Discharge', startDate, endDate, limit, offset);
+        res.json({
+            count: data.length,
+            page: (offset / limit) + 1,
+            data: data
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/postgres/river-stage', async (req, res) => {
+    try {
+        const { limit, offset } = getPagination(req.query);
+        const startDate = '2024-01-01T00:00:00Z';
+        const endDate = '2025-12-31T23:59:59Z';
+        
+        const data = await csvPostgresRoute('River Stage', startDate, endDate, limit, offset);
+        res.json({
+            count: data.length,
+            page: (offset / limit) + 1,
+            data: data
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.get('/benchmarks', (req, res) => {
-  benchmarks(req, res, oxigraphLDESTSS_time, oxigraphLDES_time, virtuosoLDESTSS_time, virtuosoLDES_time,oxigraphTTL_time,virtuosoTTL_time);
+  benchmarks(req, res, oxigraphLDESTSS_time, oxigraphLDES_time, virtuosoLDESTSS_time, virtuosoLDES_time,oxigraphTTL_time,virtuosoTTL_time,postgresCSV_time);
 });
 app.get('/csv', (req, res) => {
   // This will send a 302 redirect status to the browser
@@ -215,6 +251,7 @@ startTime = Date.now();
     await postgresHandler(CSV_URL).then(() => {
       const endTime = Date.now();
       const durationSeconds = (endTime - startTime) / 1000;
+      postgresCSV_time = durationSeconds;
       console.log(`CSV data ingestion into Postgres finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
 

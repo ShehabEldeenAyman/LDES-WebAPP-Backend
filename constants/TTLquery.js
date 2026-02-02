@@ -1,4 +1,4 @@
-export const RiverDischargeTTLqueryVirtuoso = (limit, offset) =>`
+export const RiverDischarge1YearTTLqueryVirtuoso = (limit, offset) =>`
   PREFIX sosa: <http://www.w3.org/ns/sosa/>
   PREFIX ex: <http://example.com/ns#>
   PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -18,7 +18,7 @@ export const RiverDischargeTTLqueryVirtuoso = (limit, offset) =>`
   OFFSET ${offset}
 `;
 
-export const RiverStageTTLqueryVirtuoso = (limit, offset) =>`
+export const RiverStage1YearTTLqueryVirtuoso = (limit, offset) =>`
   PREFIX sosa: <http://www.w3.org/ns/sosa/>
   PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
@@ -29,14 +29,14 @@ export const RiverStageTTLqueryVirtuoso = (limit, offset) =>`
                sosa:hasSimpleResult ?value ;
                sosa:resultTime ?time .
                
-      FILTER(YEAR(?time) = 2020)
+      FILTER(YEAR(?time) = 2025)
   }
   ORDER BY DESC(?time)
   LIMIT ${limit}
   OFFSET ${offset}
 `;
 
-export const RiverDischargeTTLqueryOxigraph = (limit, offset) =>`
+export const RiverDischarge1YearTTLqueryOxigraph = (limit, offset) =>`
   PREFIX sosa: <http://www.w3.org/ns/sosa/>
   PREFIX ex: <http://example.com/ns#>
   PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -60,7 +60,7 @@ export const RiverDischargeTTLqueryOxigraph = (limit, offset) =>`
   OFFSET ${offset}
 `;
 
-export const RiverStageTTLqueryOxigraph = (limit, offset) =>`
+export const RiverStage1YearTTLqueryOxigraph = (limit, offset) =>`
   PREFIX sosa: <http://www.w3.org/ns/sosa/>
   PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
@@ -72,7 +72,7 @@ export const RiverStageTTLqueryOxigraph = (limit, offset) =>`
                sosa:hasSimpleResult ?value ;
                sosa:resultTime ?time .
                
-      FILTER(STRSTARTS(STR(?time), "2020"))
+      FILTER(STRSTARTS(STR(?time), "2025"))
     }
   }
   ORDER BY DESC(?time)

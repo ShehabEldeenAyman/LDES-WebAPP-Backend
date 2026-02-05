@@ -54,3 +54,56 @@ ORDER BY ASC(?from)
 LIMIT ${limit}
   OFFSET ${offset}
   `;
+
+//---------------------------------------------------------------
+
+ export const RiverStage1YearTSSqueryALL = () => `
+ PREFIX tss: <https://w3id.org/tss#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?subject ?from ?pointType ?madeBySensor ?points
+WHERE {
+  GRAPH ?g {
+    ?subject a tss:Snippet ;
+             tss:from ?from ;
+             tss:pointType ?pointType ;
+             tss:points ?points ;
+             tss:about ?template .
+    
+    ?template sosa:madeBySensor ?madeBySensor ;
+              sosa:observedProperty "River Stage" .
+    
+    
+    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+  }
+}
+ORDER BY ASC(?from)
+
+  `;
+
+export const RiverDischarge1YearTSSqueryALL = () => `
+PREFIX tss: <https://w3id.org/tss#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?subject ?from ?pointType ?madeBySensor ?points
+WHERE {
+  GRAPH ?g {
+    ?subject a tss:Snippet ;
+             tss:from ?from ;
+             tss:pointType ?pointType ;
+             tss:points ?points ;
+             tss:about ?template .
+    
+    ?template sosa:madeBySensor ?madeBySensor ;
+              sosa:observedProperty "River Discharge" .
+    
+    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+  }
+}
+ORDER BY ASC(?from)
+
+  `;

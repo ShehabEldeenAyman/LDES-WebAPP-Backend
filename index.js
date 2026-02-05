@@ -290,6 +290,7 @@ const mockRes = {
     const endTime = Date.now();
     const durationSeconds = (endTime - startTime) / 1000;
     virtuosoLDES_recall_time = durationSeconds;
+    console.log(`Virtuoso LDES recall finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
  });
 
  // --- Virtuoso LDESTSS ---
@@ -299,6 +300,7 @@ const mockRes = {
         const endTime = Date.now();
         const durationSeconds = (endTime - startTime) / 1000;
         virtuosoLDESTSS_recall_time = durationSeconds;
+        console.log(`Virtuoso LDESTSS recall finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
 
     // --- Virtuoso TTL ---
@@ -308,6 +310,7 @@ const mockRes = {
         const endTime = Date.now();
         const durationSeconds = (endTime - startTime) / 1000;
         virtuosoTTL_recall_time = durationSeconds;
+        console.log(`Virtuoso TTL recall finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
 
     // --- Oxigraph LDES ---
@@ -317,6 +320,7 @@ const mockRes = {
         const endTime = Date.now();
         const durationSeconds = (endTime - startTime) / 1000;
         oxigraphLDES_recall_time = durationSeconds;
+        console.log(`Oxigraph LDES recall finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
 
     // --- Oxigraph LDESTSS ---
@@ -326,6 +330,7 @@ const mockRes = {
         const endTime = Date.now();
         const durationSeconds = (endTime - startTime) / 1000;
         oxigraphLDESTSS_recall_time = durationSeconds;
+        console.log(`Oxigraph LDESTSS recall finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
 
     // --- Oxigraph TTL ---
@@ -335,6 +340,7 @@ const mockRes = {
         const endTime = Date.now();
         const durationSeconds = (endTime - startTime) / 1000;
         oxigraphTTL_recall_time = durationSeconds;
+        console.log(`Oxigraph TTL recall finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
     });
 
 

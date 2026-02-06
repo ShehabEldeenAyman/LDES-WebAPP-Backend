@@ -1,4 +1,3 @@
-
 export async function ttlVirtuosoRoute(req, res, sparqlQuery, VIRTUOSO_SPARQL_URL) {
   // Virtuoso SPARQL endpoint URL
   const queryEndpoint = `${VIRTUOSO_SPARQL_URL}?query=${encodeURIComponent(sparqlQuery)}`;
@@ -16,19 +15,40 @@ export async function ttlVirtuosoRoute(req, res, sparqlQuery, VIRTUOSO_SPARQL_UR
 
     const result = await response.json();
 
+    // ============================================================
+    // HIGHLIGHTED CHANGE: FLEXIBLE MAPPING FOR TTL
+    // ============================================================
     const formattedData = result.results.bindings.map(binding => {
       try {
+        // Logic to support specific parsing for 'value' (Float) 
+        // OR fallback to generic 'p' (Predicate URI string)
+        let valueField = null;
+        if (binding.value) {
+            valueField = parseFloat(binding.value.value);
+        } else if (binding.p) {
+            valueField = binding.p.value;
+        }
+
         return {
-          subject: binding.subject ? binding.subject.value : null,
-          // Convert value to a float to avoid the "full decimal" string issue if desired
-          value: binding.value ? parseFloat(binding.value.value) : null,
-          time: binding.time ? binding.time.value : null,
+          // Checks for ?subject (specific) OR ?s (generic)
+          subject: (binding.subject || binding.s)?.value || null,
+          
+          // Maps to the "Value / Predicate" column
+          value: valueField,
+          
+          // Checks for ?time (specific) OR ?o (generic object)
+          // Maps to the "Time / Object" column
+          time: (binding.time || binding.o)?.value || null,
+          
+          // Runoff remains specific (generic queries likely won't have this)
           runoffValue: binding.runoffvalue ? parseFloat(binding.runoffvalue.value) : null
         };
       } catch (e) {
+        console.warn("Failed to parse TTL binding:", e);
         return null;
       }
     }).filter(item => item !== null);
+    // ============================================================
 
     return res.status(200).json(formattedData);
 

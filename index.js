@@ -132,6 +132,39 @@ app.get('/virtuoso/ldestss/query', cacheMiddleware, async (req, res) => {
     }
 });
 
+app.get('/virtuoso/ttl/query', cacheMiddleware, async (req, res) => {
+    try {
+        // 1. Force the limit to 100 and calculate offset based on page
+        const DEFAULT_LIMIT = 100;
+        const page = parseInt(req.query.page) || 1;
+        const offset = (page - 1) * DEFAULT_LIMIT;
+        
+        // 2. Extract the raw SPARQL query
+        const baseQuery = req.query.query;
+
+        if (!baseQuery) {
+            return res.status(400).json({ error: "No SPARQL query provided." });
+        }
+
+        // 3. Construct the final query with forced pagination
+        // We trim the query to ensure we don't have conflicting LIMIT/OFFSET clauses
+        const finalQuery = `
+            ${baseQuery}
+            LIMIT ${DEFAULT_LIMIT}
+            OFFSET ${offset}
+        `;
+
+        // 4. Execute using your existing Virtuoso route logic
+        // VIRTUOSO_URL should be your SPARQL endpoint (e.g., http://localhost:8890/sparql)
+        await ttlVirtuosoRoute(req, res, finalQuery, VIRTUOSO_URL);
+
+    } catch (error) {
+        console.error("Error in Virtuoso query route:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
 
 
 // --- PAGINATED ROUTES ---

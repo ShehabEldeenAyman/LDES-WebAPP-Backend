@@ -6,7 +6,6 @@ export async function ldestssVirtuosoRoute(req, res, sparqlQuery, VIRTUOSO_SPARQ
     const response = await fetch(queryEndpoint, {
       method: 'GET',
       headers: {
-        // Requesting standard SPARQL JSON results
         'Accept': 'application/sparql-results+json'
       }
     });
@@ -19,29 +18,41 @@ export async function ldestssVirtuosoRoute(req, res, sparqlQuery, VIRTUOSO_SPARQ
 
     const result = await response.json();
 
+    // ============================================================
+    // HIGHLIGHTED CHANGE: FLEXIBLE MAPPING FOR LDESTSS
+    // ============================================================
     const formattedData = result.results.bindings.map(binding => {
       try {
-        // LDESTSS specific logic: Parse the JSON string contained in the "points" binding.
-        // We use optional chaining and checks to ensure the data exists before parsing.
-        const parsedPoints = binding.points ? JSON.parse(binding.points.value) : [];
+        // 1. Generic Variable Mapping (?s ?p ?o support)
+        const subject = (binding.subject || binding.s)?.value || null;
+        const predicateOrValue = (binding.from || binding.p)?.value || null;
+        const objectOrPointType = (binding.pointType || binding.o)?.value || null;
+
+        // 2. LDESTSS specific logic: Only parse JSON if 'points' variable exists
+        let parsedPoints = [];
+        if (binding.points) {
+          parsedPoints = JSON.parse(binding.points.value);
+        }
 
         return {
-          subject: binding.subject ? binding.subject.value : null,
-          from: binding.from ? binding.from.value : null,
-          pointType: binding.pointType ? binding.pointType.value : null,
+          subject: subject,
+          // We map these to the keys your LDESTSS frontend expects
+          from: predicateOrValue,
+          pointType: objectOrPointType,
           madeBySensor: binding.madeBySensor ? binding.madeBySensor.value : null,
           points: parsedPoints
         };
       } catch (e) {
-        console.warn(`Failed to parse LDESTSS binding for subject ${binding.subject?.value}`, e);
+        console.warn(`Failed to parse LDESTSS binding:`, e);
         return null; 
       }
     }).filter(item => item !== null);
+    // ============================================================
 
     return res.status(200).json(formattedData);
 
   } catch (error) {
     console.error("Error in ldestssVirtuosoRoute:", error);
-    return res.status(500).json({ error: "Internal Server Error while querying Virtuoso LDESTSS." });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }

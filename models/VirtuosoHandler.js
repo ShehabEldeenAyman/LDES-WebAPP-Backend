@@ -1,21 +1,11 @@
 import { replicateLDES } from "ldes-client";
 import { Writer } from "n3";
 
-/**
- * Handles LDES stream replication and uploads to Virtuoso
- * @param {string} VIRTUOSO_URL - Base URL of Virtuoso (e.g., http://localhost:8890/sparql-graph-crud)
- * @param {string} data_url_LDESTSS - The LDES stream source URL
- * @param {string} type - Service type for logging
- * @param {string} graphName - The Named Graph URI to target
- */
 export async function VirtuosoHandler(VIRTUOSO_URL, data_url_LDESTSS, type, graphName) {
   console.log(`Starting ${type} Virtuoso Service stream...`);
   const allQuads = [];
 
   try {
-    // 1. Ensure the graph exists/is ready
-    // Note: Virtuoso GSP usually creates the graph automatically on POST if it doesn't exist,
-    // but we can explicitly "clear" it by using a PUT instead of POST if we want to overwrite.
     console.log(`Targeting graph: ${graphName}`);
 
     const ldesClient = replicateLDES({
@@ -25,27 +15,38 @@ export async function VirtuosoHandler(VIRTUOSO_URL, data_url_LDESTSS, type, grap
 
     const memberReader = ldesClient.stream({ materialize: true }).getReader();
 
-    // 2. Accumulate all data
+    // 1. Accumulate all data
     let result = await memberReader.read();
     while (!result.done) {
       allQuads.push(...result.value.quads);
       result = await memberReader.read();
     }
 
-    // 3. Upload to Virtuoso
+    // 2. Count unique objects (subjects)
     if (allQuads.length > 0) {
-      console.log(`Uploading ${allQuads.length} quads to ${type} Virtuoso graph: ${graphName}`);
+      const uniqueSubjects = new Set(allQuads.map(q => q.subject.value));
+      const objectCount = uniqueSubjects.size;
+
+      console.log(`Found ${objectCount} unique objects (from ${allQuads.length} total quads)`);
+      
+      console.log(`Uploading to ${type} Virtuoso graph: ${graphName}`);
       await uploadToVirtuoso(allQuads, VIRTUOSO_URL, graphName, type);
+      
       console.log(`${type} Virtuoso upload successful.`);
+      
+      // Return the count for benchmarking purposes
+      console.log(`object count: ${objectCount}`);
+      return objectCount;
     } else {
       console.log("No data found to upload.");
+      return 0;
     }
 
   } catch (error) {
     console.error(`Error in ${type} Virtuoso Service:`, error);
+    throw error;
   }
 }
-
 async function uploadToVirtuoso(quads, url, graphName, type) {
   try {
     // 1. IMPORTANT: Map Quads to Triples by removing the graph component.

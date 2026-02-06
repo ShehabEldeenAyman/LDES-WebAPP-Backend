@@ -54,3 +54,29 @@ export async function recallBenchmarks(req, res,oxigraphLDES_recall_time, virtuo
         });
     }
 }
+
+export async function objectcountBenchmarks(req, res,virtuosoTTL_count,virtuosoLDES_count,virtuosoTSS_count,oxigraphTTL_count,oxigraphLDES_count,oxigraphTSS_count) {
+    try {
+        // Validation: Ensure the benchmark times are actually provided
+        // if (oxigraphLDES_time === undefined || virtuosoLDES_time === undefined || oxigraphLDESTSS_time === undefined || virtuosoLDESTSS_time === undefined || oxigraphTTL_time === undefined) {
+        //     throw new Error("Missing benchmark data.");
+        // }
+
+        res.status(200).json({
+            virtuoso_ttl: virtuosoTTL_count,
+            virtuoso_standard_ldes: virtuosoLDES_count,
+            virtuoso_time_series: virtuosoTSS_count,
+            oxigraph_ttl: oxigraphTTL_count,
+            oxigraph_standard_ldes: oxigraphLDES_count,
+            oxigraph_time_series: oxigraphTSS_count,
+        });
+    } catch (error) {
+        console.error("Error in benchmarks route:", error.message);
+        
+        // Return a 500 Internal Server Error status so the frontend knows it failed
+        res.status(500).json({ 
+            error: "Failed to retrieve benchmark data.",
+            message: error.message 
+        });
+    }
+}

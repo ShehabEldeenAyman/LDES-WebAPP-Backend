@@ -22,18 +22,17 @@ export async function ldesVirtuosoRoute(req, res, sparqlQuery, VIRTUOSO_SPARQL_U
     // Map the results based on the data shape seen in 02.trig and VirtuosoHandler
     const formattedData = result.results.bindings.map(binding => {
       try {
-        return {
-          // 'subject' corresponds to the observation URI in the .trig file
-          subject: binding.subject ? binding.subject.value : null,
+return {
+          // Checks for ?subject (specific) OR ?s (generic)
+          subject: (binding.subject || binding.s)?.value || null,
           
-          // 'value' corresponds to sosa:hasSimpleResult
-          value: binding.value ? binding.value.value : null,
+          // Checks for ?value (specific) OR ?p (generic predicate)
+          value: (binding.value || binding.p)?.value || null,
           
-          // 'time' corresponds to sosa:resultTime
-          time: binding.time ? binding.time.value : null,
+          // Checks for ?time (specific) OR ?o (generic object)
+          time: (binding.time || binding.o)?.value || null,
           
-          // 'runoffValue' is specific to River Discharge observations (ex:runoffValue)
-          // Using optional chaining and checking existence as it's not in every observation
+          // runoffValue remains specific as it's a custom property
           runoffValue: binding.runoffvalue ? binding.runoffvalue.value : null
         };
       } catch (e) {

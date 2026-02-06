@@ -27,10 +27,18 @@ export async function VirtuosoTTLHandler(VIRTUOSO_URL, fileUrl, type, graphName)
 
     // 3. Upload to Virtuoso
     if (allQuads.length > 0) {
-      console.log(`Uploading ${allQuads.length} quads to ${type} Virtuoso graph: ${graphName}`);
-      await uploadToVirtuoso(allQuads, VIRTUOSO_URL, graphName, type);
-      console.log(`${type} Virtuoso TTL upload successful.`);
-    } else {
+    // Count unique subjects (the "Objects" in the dataset)
+    const uniqueSubjects = new Set(allQuads.map(q => q.subject.value));
+    const objectCount = uniqueSubjects.size;
+
+    console.log(`Found ${objectCount} unique objects (from ${allQuads.length} total quads)`);
+    
+    console.log(`Uploading to ${type} Virtuoso graph: ${graphName}`);
+    await uploadToVirtuoso(allQuads, VIRTUOSO_URL, graphName, type);
+    console.log(`object count: ${objectCount}`);
+    // You can return this count if needed for your benchmark console log
+    return objectCount; 
+} else {
       console.log(`No data found in TTL file for ${type}.`);
     }
 

@@ -304,6 +304,81 @@ try {
 
     console.log("Initializing LDESTSS data...");
 
+    // 1. Define a helper to run the task, time it, and assign variables safely
+const runIngest = async (name, handlerPromise, timeVarSetter) => {
+    const start = Date.now();
+    const count = await handlerPromise; // Wait only inside this helper
+    const end = Date.now();
+    const duration = (end - start) / 1000;
+    
+    // Update the specific time variable
+    timeVarSetter(duration);
+    console.log(`${name} ingestion finished! Total time: ${duration.toFixed(2)} seconds.`);
+    
+    return count;
+};
+
+// 2. Start ALL tasks simultaneously
+// We pass the Handler execution and a simple arrow function to set the correct global time variable
+const promises = [
+    // Oxigraph LDESTSS
+    runIngest("LDESTSS Oxigraph", 
+        OxigraphHandler(OXIGRAPH_BASE_URL_LDESTSS, data_url_LDESTSS, "LDESTSS", 7878), 
+        (t) => oxigraphLDESTSS_ingest_time = t
+    ),
+
+    // Oxigraph LDES
+    runIngest("LDES Oxigraph", 
+        OxigraphHandler(OXIGRAPH_BASE_URL_LDES, data_url_LDES, "LDES", 7879),
+        (t) => oxigraphLDES_ingest_time = t
+    ),
+
+    // Virtuoso LDES
+    runIngest("LDES Virtuoso", 
+        VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDES, "LDES", "http://example.org/graph/ldes"),
+        (t) => virtuosoLDES_ingest_time = t
+    ),
+
+    // Virtuoso LDESTSS
+    runIngest("LDESTSS Virtuoso", 
+        VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDESTSS, "LDESTSS", "http://example.org/graph/ldestss"),
+        (t) => virtuosoLDESTSS_ingest_time = t
+    ),
+
+    // TTL Oxigraph
+    runIngest("TTL Oxigraph", 
+        OxigraphTTLHandler(OXIGRAPH_BASE_URL_TTL, data_url_TTL, "TTL", 7877),
+        (t) => oxigraphTTL_ingest_time = t
+    ),
+
+    // TTL Virtuoso
+    runIngest("TTL Virtuoso", 
+        VirtuosoTTLHandler("http://localhost:8890/sparql-graph-crud", data_url_TTL, "TTL", "http://example.org/graph/ttl"),
+        (t) => virtuosoTTL_ingest_time = t
+    ),
+    
+    // Postgres CSV
+    runIngest("CSV Postgres",
+        postgresHandler(CSV_URL),
+        (t) => postgresCSV_ingest_time = t
+    )
+];
+
+// 3. Wait for ALL of them to complete here
+// This assigns the results to your global count variables in the correct order
+[
+    oxigraphTSS_count,
+    oxigraphLDES_count,
+    virtuosoLDES_count,
+    virtuosoTSS_count,
+    oxigraphTTL_count,
+    virtuosoTTL_count,
+    /* postgres doesn't return a count variable in your original code */
+] = await Promise.all(promises);
+
+console.log("Initialization finished. Starting web server...");
+
+
     app.get('/benchmarks/objectcount', (req, res) => {
     // This wrapper ensures we grab the LATEST values of the variables 
     // from the top-level scope every time the user hits the endpoint.
@@ -318,84 +393,84 @@ try {
         oxigraphTSS_count
     );
 });
-    // 1. Capture the start time
-    var startTime = Date.now();
-    oxigraphTSS_count =await OxigraphHandler(OXIGRAPH_BASE_URL_LDESTSS, data_url_LDESTSS, "LDESTSS", 7878).then(() => {
-      // 3. Capture end time when promise resolves
-      const endTime = Date.now();
+//     // 1. Capture the start time
+//     var startTime = Date.now();
+//     oxigraphTSS_count =await OxigraphHandler(OXIGRAPH_BASE_URL_LDESTSS, data_url_LDESTSS, "LDESTSS", 7878).then(() => {
+//       // 3. Capture end time when promise resolves
+//       const endTime = Date.now();
       
-      // Calculate duration in seconds
-      const durationSeconds = (endTime - startTime) / 1000;
-      oxigraphLDESTSS_ingest_time = durationSeconds;
+//       // Calculate duration in seconds
+//       const durationSeconds = (endTime - startTime) / 1000;
+//       oxigraphLDESTSS_ingest_time = durationSeconds;
       
-      console.log(`LDESTSS Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    });
-     startTime = Date.now();
+//       console.log(`LDESTSS Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+//     });
+//      startTime = Date.now();
 
-      oxigraphLDES_count =   await OxigraphHandler(OXIGRAPH_BASE_URL_LDES, data_url_LDES, "LDES", 7879).then(() => {
-      // 3. Capture end time when promise resolves
-      const endTime = Date.now();
+//       oxigraphLDES_count =   await OxigraphHandler(OXIGRAPH_BASE_URL_LDES, data_url_LDES, "LDES", 7879).then(() => {
+//       // 3. Capture end time when promise resolves
+//       const endTime = Date.now();
       
-      // Calculate duration in seconds
-      const durationSeconds = (endTime - startTime) / 1000;
-      oxigraphLDES_ingest_time = durationSeconds;
+//       // Calculate duration in seconds
+//       const durationSeconds = (endTime - startTime) / 1000;
+//       oxigraphLDES_ingest_time = durationSeconds;
       
-      console.log(`LDES Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    });
-startTime = Date.now();
-    virtuosoLDES_count= await VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDES, "LDES", "http://example.org/graph/ldes").then(() => {
-      // 3. Capture end time when promise resolves
-      const endTime = Date.now();
+//       console.log(`LDES Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+//     });
+// startTime = Date.now();
+//     virtuosoLDES_count= await VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDES, "LDES", "http://example.org/graph/ldes").then(() => {
+//       // 3. Capture end time when promise resolves
+//       const endTime = Date.now();
       
-      // Calculate duration in seconds
-      const durationSeconds = (endTime - startTime) / 1000;
-      virtuosoLDES_ingest_time = durationSeconds;
+//       // Calculate duration in seconds
+//       const durationSeconds = (endTime - startTime) / 1000;
+//       virtuosoLDES_ingest_time = durationSeconds;
       
-      console.log(`LDES Virtuoso ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    });
-startTime = Date.now();
-       virtuosoTSS_count =  await VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDESTSS, "LDESTSS", "http://example.org/graph/ldestss").then(() => {
-      // 3. Capture end time when promise resolves
-      const endTime = Date.now();
+//       console.log(`LDES Virtuoso ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+//     });
+// startTime = Date.now();
+//        virtuosoTSS_count =  await VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDESTSS, "LDESTSS", "http://example.org/graph/ldestss").then(() => {
+//       // 3. Capture end time when promise resolves
+//       const endTime = Date.now();
       
-      // Calculate duration in seconds
-      const durationSeconds = (endTime - startTime) / 1000;
-      virtuosoLDESTSS_ingest_time = durationSeconds;
+//       // Calculate duration in seconds
+//       const durationSeconds = (endTime - startTime) / 1000;
+//       virtuosoLDESTSS_ingest_time = durationSeconds;
       
-      console.log(`LDESTSS Virtuoso ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    });
-startTime = Date.now();
-    oxigraphTTL_count =  await OxigraphTTLHandler(OXIGRAPH_BASE_URL_TTL, data_url_TTL, "TTL", 7877).then(() => {
-      // 3. Capture end time when promise resolves
-      const endTime = Date.now();
+//       console.log(`LDESTSS Virtuoso ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+//     });
+// startTime = Date.now();
+//     oxigraphTTL_count =  await OxigraphTTLHandler(OXIGRAPH_BASE_URL_TTL, data_url_TTL, "TTL", 7877).then(() => {
+//       // 3. Capture end time when promise resolves
+//       const endTime = Date.now();
       
-      // Calculate duration in seconds
-      const durationSeconds = (endTime - startTime) / 1000;
-      oxigraphTTL_ingest_time = durationSeconds;
+//       // Calculate duration in seconds
+//       const durationSeconds = (endTime - startTime) / 1000;
+//       oxigraphTTL_ingest_time = durationSeconds;
       
-      console.log(`TTL Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    });
+//       console.log(`TTL Oxigraph ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+//     });
       
-startTime = Date.now();
-    virtuosoTTL_count = await VirtuosoTTLHandler("http://localhost:8890/sparql-graph-crud", data_url_TTL, "TTL", "http://example.org/graph/ttl").then(() => {
-      // 3. Capture end time when promise resolves
-      const endTime = Date.now();
+// startTime = Date.now();
+//     virtuosoTTL_count = await VirtuosoTTLHandler("http://localhost:8890/sparql-graph-crud", data_url_TTL, "TTL", "http://example.org/graph/ttl").then(() => {
+//       // 3. Capture end time when promise resolves
+//       const endTime = Date.now();
       
-      // Calculate duration in seconds
-      const durationSeconds = (endTime - startTime) / 1000;
-      virtuosoTTL_ingest_time = durationSeconds;
+//       // Calculate duration in seconds
+//       const durationSeconds = (endTime - startTime) / 1000;
+//       virtuosoTTL_ingest_time = durationSeconds;
       
-      console.log(`TTL Virtuoso ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    });
+//       console.log(`TTL Virtuoso ingestion finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+//     });
 
-    console.log("Initialization finished. Starting web server...");
-  startTime = Date.now();
-    await postgresHandler(CSV_URL).then(() => {
-      const endTime = Date.now();
-      const durationSeconds = (endTime - startTime) / 1000;
-      postgresCSV_ingest_time = durationSeconds;
-      console.log(`CSV data ingestion into Postgres finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    });
+//     console.log("Initialization finished. Starting web server...");
+//   startTime = Date.now();
+//     await postgresHandler(CSV_URL).then(() => {
+//       const endTime = Date.now();
+//       const durationSeconds = (endTime - startTime) / 1000;
+//       postgresCSV_ingest_time = durationSeconds;
+//       console.log(`CSV data ingestion into Postgres finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
+//     });
 //----------------------------------------------- BENCHMARK QUERIES ALL with mock req res
 const mockReq = {}; 
 const mockRes = {
@@ -405,7 +480,7 @@ const mockRes = {
     text: () => mockRes
 };
 
-      startTime = Date.now();
+    let  startTime = Date.now();
     await ldesVirtuosoRoute(mockReq, mockRes, RiverStage1YearLDESqueryALL(), VIRTUOSO_URL);
      await ldesVirtuosoRoute(mockReq, mockRes, RiverDischarge1YearLDESqueryALL(), VIRTUOSO_URL).then(() => {
     const endTime = Date.now();

@@ -364,17 +364,20 @@ const promises = [
     )
 ];
 
-// 3. Wait for ALL of them to complete here
-// This assigns the results to your global count variables in the correct order
-[
+const ingestPromises = [
     oxigraphTSS_count,
     oxigraphLDES_count,
     virtuosoLDES_count,
     virtuosoTSS_count,
     oxigraphTTL_count,
     virtuosoTTL_count,
-    /* postgres doesn't return a count variable in your original code */
-] = await Promise.all(promises);
+]
+
+try {
+    await Promise.all(ingestPromises);
+} catch (err) {
+    console.error("Error during ingest process:", err);
+}
 
 console.log("Initialization finished. Starting web server...");
 
@@ -403,67 +406,81 @@ const mockRes = {
     text: () => mockRes
 };
 
-    let  startTime = Date.now();
-    await ldesVirtuosoRoute(mockReq, mockRes, RiverStage1YearLDESqueryALL(), VIRTUOSO_URL);
-     await ldesVirtuosoRoute(mockReq, mockRes, RiverDischarge1YearLDESqueryALL(), VIRTUOSO_URL).then(() => {
-    const endTime = Date.now();
-    const durationSeconds = (endTime - startTime) / 1000;
-    virtuosoLDES_recall_time = durationSeconds;
-    console.log(`Virtuoso LDES recall finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
- });
+const runRecall = async (name, routeFn, query1, query2, url, timeSetter) => {
+    const start = Date.now();
+    
+    // We keep these two sequential so we measure the total time 
+    // for "Stage + Discharge" as one unit (like your original code).
+    await routeFn(mockReq, mockRes, query1, url);
+    await routeFn(mockReq, mockRes, query2, url);
+    
+    const duration = (Date.now() - start) / 1000;
+    timeSetter(duration); // Update global variable
+    console.log(`${name} recall finished! Total time: ${duration.toFixed(2)} seconds.`);
+};
 
- // --- Virtuoso LDESTSS ---
-    startTime = Date.now();
-    await ldestssVirtuosoRoute(mockReq, mockRes, RiverStage1YearTSSqueryALL(), VIRTUOSO_URL);
-    await ldestssVirtuosoRoute(mockReq, mockRes, RiverDischarge1YearTSSqueryALL(), VIRTUOSO_URL).then(() => {
-        const endTime = Date.now();
-        const durationSeconds = (endTime - startTime) / 1000;
-        virtuosoLDESTSS_recall_time = durationSeconds;
-        console.log(`Virtuoso LDESTSS recall finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    });
+const recallPromises = [
+    // --- Virtuoso Benchmarks ---
+    runRecall("Virtuoso LDES", 
+        ldesVirtuosoRoute, 
+        RiverStage1YearLDESqueryALL(), 
+        RiverDischarge1YearLDESqueryALL(), 
+        VIRTUOSO_URL,
+        (t) => virtuosoLDES_recall_time = t
+    ),
+    
+    runRecall("Virtuoso LDESTSS", 
+        ldestssVirtuosoRoute, 
+        RiverStage1YearTSSqueryALL(), 
+        RiverDischarge1YearTSSqueryALL(), 
+        VIRTUOSO_URL,
+        (t) => virtuosoLDESTSS_recall_time = t
+    ),
 
-    // --- Virtuoso TTL ---
-    startTime = Date.now();
-    await ttlVirtuosoRoute(mockReq, mockRes, RiverStage1YearTTLqueryVirtuosoALL(), VIRTUOSO_URL);
-    await ttlVirtuosoRoute(mockReq, mockRes, RiverDischarge1YearTTLqueryVirtuosoALL(), VIRTUOSO_URL).then(() => {
-        const endTime = Date.now();
-        const durationSeconds = (endTime - startTime) / 1000;
-        virtuosoTTL_recall_time = durationSeconds;
-        console.log(`Virtuoso TTL recall finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    });
+    runRecall("Virtuoso TTL", 
+        ttlVirtuosoRoute, 
+        RiverStage1YearTTLqueryVirtuosoALL(), 
+        RiverDischarge1YearTTLqueryVirtuosoALL(), 
+        VIRTUOSO_URL,
+        (t) => virtuosoTTL_recall_time = t
+    ),
 
-    // --- Oxigraph LDES ---
-    startTime = Date.now();
-    await ldesOxigraphRoute(mockReq, mockRes, RiverStage1YearLDESqueryALL(), OXIGRAPH_BASE_URL_LDES);
-    await ldesOxigraphRoute(mockReq, mockRes, RiverDischarge1YearLDESqueryALL(), OXIGRAPH_BASE_URL_LDES).then(() => {
-        const endTime = Date.now();
-        const durationSeconds = (endTime - startTime) / 1000;
-        oxigraphLDES_recall_time = durationSeconds;
-        console.log(`Oxigraph LDES recall finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    });
+    // --- Oxigraph Benchmarks ---
+    runRecall("Oxigraph LDES", 
+        ldesOxigraphRoute, 
+        RiverStage1YearLDESqueryALL(), 
+        RiverDischarge1YearLDESqueryALL(), 
+        OXIGRAPH_BASE_URL_LDES,
+        (t) => oxigraphLDES_recall_time = t
+    ),
 
-    // --- Oxigraph LDESTSS ---
-    startTime = Date.now();
-    await ldestssOxigraphRoute(mockReq, mockRes, RiverStage1YearTSSqueryALL(), OXIGRAPH_BASE_URL_LDESTSS);
-    await ldestssOxigraphRoute(mockReq, mockRes, RiverDischarge1YearTSSqueryALL(), OXIGRAPH_BASE_URL_LDESTSS).then(() => {
-        const endTime = Date.now();
-        const durationSeconds = (endTime - startTime) / 1000;
-        oxigraphLDESTSS_recall_time = durationSeconds;
-        console.log(`Oxigraph LDESTSS recall finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    });
+    runRecall("Oxigraph LDESTSS", 
+        ldestssOxigraphRoute, 
+        RiverStage1YearTSSqueryALL(), 
+        RiverDischarge1YearTSSqueryALL(), 
+        OXIGRAPH_BASE_URL_LDESTSS,
+        (t) => oxigraphLDESTSS_recall_time = t
+    ),
 
-    // --- Oxigraph TTL ---
-    startTime = Date.now();
-    await ttlOxigraphRoute(mockReq, mockRes, RiverStage1YearTTLqueryOxigraphALL(), OXIGRAPH_BASE_URL_TTL);
-    await ttlOxigraphRoute(mockReq, mockRes, RiverDischarge1YearTTLqueryOxigraphALL(), OXIGRAPH_BASE_URL_TTL).then(() => {
-        const endTime = Date.now();
-        const durationSeconds = (endTime - startTime) / 1000;
-        oxigraphTTL_recall_time = durationSeconds;
-        console.log(`Oxigraph TTL recall finished! Total time: ${durationSeconds.toFixed(2)} seconds.`);
-    });
+    runRecall("Oxigraph TTL", 
+        ttlOxigraphRoute, 
+        RiverStage1YearTTLqueryOxigraphALL(), 
+        RiverDischarge1YearTTLqueryOxigraphALL(), 
+        OXIGRAPH_BASE_URL_TTL,
+        (t) => oxigraphTTL_recall_time = t
+    )
+];
+
+try {
+    await Promise.all(recallPromises);
+} catch (err) {
+    console.error("Error during recall benchmarks:", err);
+    // You might want to decide if you want to crash here or continue starting the server
+}
+
+console.log("All benchmarks finished. Starting web server...");
 
 
-    // 4. Only start listening after data is ready
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });

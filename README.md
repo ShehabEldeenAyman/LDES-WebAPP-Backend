@@ -4,9 +4,9 @@ Running instructions.
 
 Oxigraph:
 
-oxigraph serve --location ./oxigraph_data_1 --bind 127.0.0.1:7878
-oxigraph serve --location ./oxigraph_data_2 --bind 127.0.0.1:7879
-oxigraph serve --location ./oxigraph_data_3 --bind 127.0.0.1:7877
+./oxigraph serve --location ./oxigraph_data_1 --bind 127.0.0.1:7878
+./oxigraph serve --location ./oxigraph_data_2 --bind 127.0.0.1:7879
+./oxigraph serve --location ./oxigraph_data_3 --bind 127.0.0.1:7877
 
 Virtuoso: Virtuoso Services Control
 

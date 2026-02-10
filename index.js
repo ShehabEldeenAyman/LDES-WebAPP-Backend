@@ -9,7 +9,7 @@ import { VirtuosoHandler } from './models/VirtuosoHandler.js';
 import {ldesVirtuosoRoute} from './routes/ldesVirtuosoRoute.js';
 import {ldestssVirtuosoRoute} from './routes/ldestssVirtuosoRoute.js';
 import {ingestBenchmarks,recallBenchmarks,objectcountBenchmarks } from './routes/benchmarks.js';
-import {OxigraphTTLHandler} from './models/OxigraphTtlHandler.js';
+import {OxigraphTTLHandler} from './models/OxigraphTTLHandler.js';
 import {CSV_URL,ttl_URL,OXIGRAPH_BASE_URL_TTL,data_url_TTL,VIRTUOSO_URL} from './constants/constants.js';
 import {VirtuosoTTLHandler} from './models/VirtuosoTTLHandler.js';
 import {ttlVirtuosoRoute} from './routes/ttlVirtuosoRoute.js';

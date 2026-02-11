@@ -23,6 +23,7 @@
     "node-fetch": "^3.3.2",
     "oxigraph": "^0.5.3",
     "pg": "^8.18.0",
+    "pg-copy-streams": "^7.0.0",
     "redis": "^5.10.0"
   },
   "devDependencies": {

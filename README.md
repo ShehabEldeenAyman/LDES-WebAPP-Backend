@@ -9,8 +9,10 @@ Oxigraph:
 ./oxigraph serve --location ./oxigraph_data_3 --bind 127.0.0.1:7877
 
 Virtuoso: Virtuoso Services Control
+sudo systemctl start virtuoso-opensource
 
 Postgres: PG Admin
+sudo systemctl start postgresql
 
 Redis:(WSL)
 sudo service redis-server start

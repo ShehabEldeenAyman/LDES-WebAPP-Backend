@@ -1,5 +1,4 @@
 export async function ttlVirtuosoRoute(req, res, sparqlQuery, VIRTUOSO_SPARQL_URL) {
-  // Virtuoso SPARQL endpoint URL
   const queryEndpoint = `${VIRTUOSO_SPARQL_URL}?query=${encodeURIComponent(sparqlQuery)}`;
 
   try {
@@ -15,40 +14,32 @@ export async function ttlVirtuosoRoute(req, res, sparqlQuery, VIRTUOSO_SPARQL_UR
 
     const result = await response.json();
 
-    // ============================================================
-    // HIGHLIGHTED CHANGE: FLEXIBLE MAPPING FOR TTL
-    // ============================================================
-    const formattedData = result.results.bindings.map(binding => {
-      try {
-        // Logic to support specific parsing for 'value' (Float) 
-        // OR fallback to generic 'p' (Predicate URI string)
-        let valueField = null;
-        if (binding.value) {
-            valueField = parseFloat(binding.value.value);
-        } else if (binding.p) {
-            valueField = binding.p.value;
-        }
+    // 1. Get the list of variables from the SPARQL header (e.g., ["s", "p", "o"])
+    const variables = result.head.vars;
 
-        return {
-          // Checks for ?subject (specific) OR ?s (generic)
-          subject: (binding.subject || binding.s)?.value || null,
-          
-          // Maps to the "Value / Predicate" column
-          value: valueField,
-          
-          // Checks for ?time (specific) OR ?o (generic object)
-          // Maps to the "Time / Object" column
-          time: (binding.time || binding.o)?.value || null,
-          
-          // Runoff remains specific (generic queries likely won't have this)
-          runoffValue: binding.runoffvalue ? parseFloat(binding.runoffvalue.value) : null
-        };
-      } catch (e) {
-        console.warn("Failed to parse TTL binding:", e);
-        return null;
-      }
-    }).filter(item => item !== null);
-    // ============================================================
+    // 2. Map through bindings dynamically
+    const formattedData = result.results.bindings.map(binding => {
+      const row = {};
+      
+      variables.forEach(varName => {
+        const data = binding[varName];
+        if (data) {
+          // Check if it's a numeric type to parse it, otherwise return raw value
+          const isNumeric = data.datatype && (
+            data.datatype.includes('integer') || 
+            data.datatype.includes('decimal') || 
+            data.datatype.includes('float') || 
+            data.datatype.includes('double')
+          );
+
+          row[varName] = isNumeric ? parseFloat(data.value) : data.value;
+        } else {
+          row[varName] = null;
+        }
+      });
+      
+      return row;
+    });
 
     return res.status(200).json(formattedData);
 

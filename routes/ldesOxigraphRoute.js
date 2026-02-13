@@ -1,5 +1,5 @@
 export async function ldesOxigraphRoute(req, res, sparqlQuery, OXIGRAPH_BASE_URL_LDES) {
-  const queryEndpoint = `${OXIGRAPH_BASE_URL_LDES}query?query=${encodeURIComponent(sparqlQuery)}`;
+  const queryEndpoint = `${OXIGRAPH_BASE_URL_LDES.replace(/\/$/, '')}/query?query=${encodeURIComponent(sparqlQuery)}`;
 
   try {
     const response = await fetch(queryEndpoint, {
@@ -16,22 +16,34 @@ export async function ldesOxigraphRoute(req, res, sparqlQuery, OXIGRAPH_BASE_URL
 
     const result = await response.json();
 
+    // 1. Get variable names dynamically from the SPARQL header
+    const variables = result.head?.vars || [];
+
+    // 2. Map through bindings dynamically
     const formattedData = result.results.bindings.map(binding => {
-      try {
-        // We simply extract the values directly. 
-        // We use optional chaining (?.) in case runoffvalue is missing for some rows.
-        return {
-          subject: binding.subject.value,
-          value: binding.value.value,
-          time: binding.time.value,
-          // runoffvalue is only selected in the RiverDischarge query, so we check if it exists
-          runoffValue: binding.runoffvalue ? binding.runoffvalue.value : null
-        };
-      } catch (e) {
-        console.warn(`Failed to parse binding for subject ${binding.subject?.value}`, e);
-        return null;
-      }
-    }).filter(item => item !== null);
+      const row = {};
+      
+      variables.forEach(varName => {
+        const data = binding[varName];
+        if (data) {
+          // Identify numeric types for automatic type-casting
+          const isNumeric = data.datatype && (
+            data.datatype.includes('integer') || 
+            data.datatype.includes('decimal') || 
+            data.datatype.includes('float') || 
+            data.datatype.includes('double')
+          );
+
+          row[varName] = isNumeric ? parseFloat(data.value) : data.value;
+        } else {
+          // Set to null if the variable is not bound (common in OPTIONAL patterns)
+          // This ensures every row has the same keys for your dynamic table
+          row[varName] = null;
+        }
+      });
+      
+      return row;
+    });
 
     return res.status(200).json(formattedData);
 

@@ -1,13 +1,10 @@
 export async function ldestssOxigraphRoute(req, res, sparqlQuery, OXIGRAPH_BASE_URL_LDESTSS) {
-  // Construct the URL with the query as a parameter
-  const queryEndpoint = `${OXIGRAPH_BASE_URL_LDESTSS}query?query=${encodeURIComponent(sparqlQuery)}`;
+  const queryEndpoint = `${OXIGRAPH_BASE_URL_LDESTSS.replace(/\/$/, '')}/query?query=${encodeURIComponent(sparqlQuery)}`;
 
   try {
     const response = await fetch(queryEndpoint, {
       method: 'GET',
-      headers: { 
-        'Accept': 'application/sparql-results+json' 
-      }
+      headers: { 'Accept': 'application/sparql-results+json' }
     });
 
     if (!response.ok) {
@@ -17,23 +14,49 @@ export async function ldestssOxigraphRoute(req, res, sparqlQuery, OXIGRAPH_BASE_
 
     const result = await response.json();
 
-    const formattedData = result.results.bindings.map(binding => {
-      try {
-        // Parse the JSON string in "points"
-        const parsedPoints = JSON.parse(binding.points.value);
+    // 1. Get variable names dynamically from the SPARQL header
+    const variables = result.head?.vars || [];
 
-        return {
-          subject: binding.subject.value,
-          from: binding.from.value,
-          pointType: binding.pointType.value,
-          madeBySensor: binding.madeBySensor.value,
-          points: parsedPoints
-        };
-      } catch (e) {
-        console.warn(`Failed to parse points for subject ${binding.subject.value}`, e);
-        return null; 
-      }
-    }).filter(item => item !== null);
+    // 2. Map through bindings dynamically
+    const formattedData = result.results.bindings.map(binding => {
+      const row = {};
+      
+      variables.forEach(varName => {
+        const data = binding[varName];
+        if (data) {
+          const rawValue = data.value;
+
+          // A. Check for Numeric Types (Casting strings to numbers)
+          const isNumeric = data.datatype && (
+            data.datatype.includes('integer') || 
+            data.datatype.includes('decimal') || 
+            data.datatype.includes('float') || 
+            data.datatype.includes('double')
+          );
+
+          if (isNumeric) {
+            row[varName] = parseFloat(rawValue);
+          } 
+          // B. Handle JSON strings (Generic detection for LDESTSS 'points')
+          else if (typeof rawValue === 'string' && (rawValue.startsWith('[') || rawValue.startsWith('{'))) {
+            try {
+              row[varName] = JSON.parse(rawValue);
+            } catch (e) {
+              row[varName] = rawValue; // Fallback if it's just a bracketed string
+            }
+          } 
+          // C. Standard String/URI
+          else {
+            row[varName] = rawValue;
+          }
+        } else {
+          // Ensure keys exist even if null for table alignment
+          row[varName] = null;
+        }
+      });
+      
+      return row;
+    });
 
     return res.status(200).json(formattedData);
 

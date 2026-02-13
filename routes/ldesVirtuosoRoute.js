@@ -6,7 +6,6 @@ export async function ldesVirtuosoRoute(req, res, sparqlQuery, VIRTUOSO_SPARQL_U
     const response = await fetch(queryEndpoint, {
       method: 'GET',
       headers: {
-        // Requesting standard SPARQL JSON results
         'Accept': 'application/sparql-results+json'
       }
     });
@@ -19,27 +18,33 @@ export async function ldesVirtuosoRoute(req, res, sparqlQuery, VIRTUOSO_SPARQL_U
 
     const result = await response.json();
 
-    // Map the results based on the data shape seen in 02.trig and VirtuosoHandler
+    // 1. Extract variable names from the SPARQL header (e.g., ["s", "p", "o"] or ["subject", "value"])
+    const variables = result.head?.vars || [];
+
+    // 2. Map the results dynamically based on the variables found in the query
     const formattedData = result.results.bindings.map(binding => {
-      try {
-return {
-          // Checks for ?subject (specific) OR ?s (generic)
-          subject: (binding.subject || binding.s)?.value || null,
-          
-          // Checks for ?value (specific) OR ?p (generic predicate)
-          value: (binding.value || binding.p)?.value || null,
-          
-          // Checks for ?time (specific) OR ?o (generic object)
-          time: (binding.time || binding.o)?.value || null,
-          
-          // runoffValue remains specific as it's a custom property
-          runoffValue: binding.runoffvalue ? binding.runoffvalue.value : null
-        };
-      } catch (e) {
-        console.warn(`Failed to parse Virtuoso binding:`, e);
-        return null;
-      }
-    }).filter(item => item !== null);
+      const row = {};
+      
+      variables.forEach(varName => {
+        const data = binding[varName];
+        if (data) {
+          // Identify numeric types to perform automatic type-casting
+          const isNumeric = data.datatype && (
+            data.datatype.includes('integer') || 
+            data.datatype.includes('decimal') || 
+            data.datatype.includes('float') || 
+            data.datatype.includes('double')
+          );
+
+          row[varName] = isNumeric ? parseFloat(data.value) : data.value;
+        } else {
+          // Set to null if the variable is not bound (common in OPTIONAL patterns)
+          row[varName] = null;
+        }
+      });
+      
+      return row;
+    });
 
     return res.status(200).json(formattedData);
 

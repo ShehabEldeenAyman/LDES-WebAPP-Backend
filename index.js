@@ -362,8 +362,10 @@ const ingestionTaskPromises = [
         console.log("Waiting for ingestion to complete...");
         
         // WAIT for the actual tasks to finish
-        const results = await Promise.all(ingestionTaskPromises);
-        
+        //const results = await Promise.all(ingestionTaskPromises);
+        for (const taskPromise of ingestionTaskPromises) {
+            await taskPromise; // We await each one to ensure they finish and set their respective time variables
+        }
         // Assign the returned counts to your global variables based on the array order above
         oxigraphTSS_count = results[0];
         oxigraphLDES_count = results[1];

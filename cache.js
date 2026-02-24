@@ -25,6 +25,8 @@ client.on('error', err => {
 })();
 
 export const cacheMiddleware = async (req, res, next) => {
+return next(); // Disable caching for development/testing. Remove this line to enable caching.
+
     const key = `cache:${req.originalUrl || req.url}`;
 
     // Ensure the client is open before trying to use it

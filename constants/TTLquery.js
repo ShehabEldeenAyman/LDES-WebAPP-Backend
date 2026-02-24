@@ -11,7 +11,8 @@ export const RiverDischarge1YearTTLqueryVirtuoso = (limit, offset) =>`
                sosa:resultTime ?time ;
                ex:runoffValue ?runoffvalue .
       
-      FILTER(YEAR(?time) = 2025)
+    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
   }
   ORDER BY DESC(?time)
   LIMIT ${limit}
@@ -29,7 +30,8 @@ export const RiverStage1YearTTLqueryVirtuoso = (limit, offset) =>`
                sosa:hasSimpleResult ?value ;
                sosa:resultTime ?time .
                
-      FILTER(YEAR(?time) = 2025)
+    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
   }
   ORDER BY DESC(?time)
   LIMIT ${limit}
@@ -51,8 +53,8 @@ export const RiverDischarge1YearTTLqueryOxigraph = (limit, offset) =>`
       
       OPTIONAL { ?subject ex:runoffValue ?runoffvalue . }
       
-      # Use STRSTARTS to be safe if the data type is just a string
-      FILTER(STRSTARTS(STR(?time), "2025"))
+    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
     }
   }
   ORDER BY DESC(?time)
@@ -72,7 +74,8 @@ export const RiverStage1YearTTLqueryOxigraph = (limit, offset) =>`
                sosa:hasSimpleResult ?value ;
                sosa:resultTime ?time .
                
-      FILTER(STRSTARTS(STR(?time), "2025"))
+    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
     }
   }
   ORDER BY DESC(?time)
@@ -94,7 +97,8 @@ export const RiverDischarge1YearTTLqueryVirtuosoALL = () =>`
                sosa:resultTime ?time ;
                ex:runoffValue ?runoffvalue .
       
-      FILTER(YEAR(?time) = 2025)
+    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
   }
   ORDER BY DESC(?time)
 
@@ -111,7 +115,8 @@ export const RiverStage1YearTTLqueryVirtuosoALL = () =>`
                sosa:hasSimpleResult ?value ;
                sosa:resultTime ?time .
                
-      FILTER(YEAR(?time) = 2025)
+    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
   }
   ORDER BY DESC(?time)
 
@@ -132,8 +137,8 @@ export const RiverDischarge1YearTTLqueryOxigraphALL = () =>`
       
       OPTIONAL { ?subject ex:runoffValue ?runoffvalue . }
       
-      # Use STRSTARTS to be safe if the data type is just a string
-      FILTER(STRSTARTS(STR(?time), "2025"))
+    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
     }
   }
   ORDER BY DESC(?time)
@@ -152,7 +157,8 @@ export const RiverStage1YearTTLqueryOxigraphALL = () =>`
                sosa:hasSimpleResult ?value ;
                sosa:resultTime ?time .
                
-      FILTER(STRSTARTS(STR(?time), "2025"))
+    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
     }
   }
   ORDER BY DESC(?time)

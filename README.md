@@ -18,5 +18,7 @@ Redis:(WSL)
 sudo service redis-server start
 
 Backend:
-
 npm run dev
+
+Ngrok:
+ngrok http [port_number]

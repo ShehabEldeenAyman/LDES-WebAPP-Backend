@@ -13,6 +13,12 @@ client.on('error', err => {
     try {
         await client.connect();
         console.log("Connected to Redis successfully");
+
+        // Clear the cache whenever the server starts/restarts
+        await client.flushAll(); 
+        console.log("Redis cache cleared for development");
+
+        
     } catch (err) {
         console.error("Could not connect to Redis. Caching will be disabled.");
     }

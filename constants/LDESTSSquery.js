@@ -22,8 +22,8 @@ WHERE {
               sosa:observedProperty "River Stage" .
     
     
-    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+    FILTER (?from >= "2025-01-01T00:00:00"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00"^^xsd:dateTime)
   }
 }
 ORDER BY ASC(?from)
@@ -49,8 +49,8 @@ WHERE {
     ?template sosa:madeBySensor ?madeBySensor ;
               sosa:observedProperty "River Discharge" .
     
-    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+    FILTER (?from >= "2025-01-01T00:00:00"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00"^^xsd:dateTime)
   }
 }
 ORDER BY ASC(?from)
@@ -78,8 +78,8 @@ WHERE {
               sosa:observedProperty "River Stage" .
     
     
-    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+    FILTER (?from >= "2025-01-01T00:00:00"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00"^^xsd:dateTime)
   }
 }
 ORDER BY ASC(?from)
@@ -103,8 +103,8 @@ WHERE {
     ?template sosa:madeBySensor ?madeBySensor ;
               sosa:observedProperty "River Discharge" .
     
-    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+    FILTER (?from >= "2025-01-01T00:00:00"^^xsd:dateTime && 
+            ?from < "2026-01-01T00:00:00"^^xsd:dateTime)
   }
 }
 ORDER BY ASC(?from)

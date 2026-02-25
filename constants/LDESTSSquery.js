@@ -1,3 +1,6 @@
+import { name_GRAPH_LDESTSS } from './constants.js';
+
+
 export const OXIGRAPH_BASE_URL_LDESTSS = "http://localhost:7878/"; // Base URL for Oxigraph
 export const data_url_LDESTSS = "https://shehabeldeenayman.github.io/Mol_sluis_Dessel_Usecase/LDESTSS/LDESTSS.trig";
 
@@ -8,7 +11,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?subject ?from ?pointType ?madeBySensor ?points
 WHERE {
-  GRAPH ?g {
+  GRAPH <${name_GRAPH_LDESTSS}> {
     ?subject a tss:Snippet ;
              tss:from ?from ;
              tss:pointType ?pointType ;
@@ -36,7 +39,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?subject ?from ?pointType ?madeBySensor ?points
 WHERE {
-  GRAPH ?g {
+  GRAPH <${name_GRAPH_LDESTSS}> {
     ?subject a tss:Snippet ;
              tss:from ?from ;
              tss:pointType ?pointType ;
@@ -64,7 +67,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?subject ?from ?pointType ?madeBySensor ?points
 WHERE {
-  GRAPH ?g {
+  GRAPH <${name_GRAPH_LDESTSS}> {
     ?subject a tss:Snippet ;
              tss:from ?from ;
              tss:pointType ?pointType ;
@@ -90,7 +93,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?subject ?from ?pointType ?madeBySensor ?points
 WHERE {
-  GRAPH ?g {
+  GRAPH <${name_GRAPH_LDESTSS}> {
     ?subject a tss:Snippet ;
              tss:from ?from ;
              tss:pointType ?pointType ;

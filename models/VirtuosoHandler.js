@@ -1,7 +1,7 @@
 import { replicateLDES } from "ldes-client";
 import { Writer } from "n3";
 
-export async function VirtuosoHandler(VIRTUOSO_URL, data_url_LDESTSS, type, graphName) {
+export async function VirtuosoHandler(VIRTUOSO_URL, data_url, type, graphName) {
   console.log(`Starting ${type} Virtuoso Service stream...`);
   const allQuads = [];
 
@@ -9,7 +9,7 @@ export async function VirtuosoHandler(VIRTUOSO_URL, data_url_LDESTSS, type, grap
     console.log(`Targeting graph: ${graphName}`);
 
     const ldesClient = replicateLDES({
-      url: data_url_LDESTSS,
+      url: data_url,
       fetchOptions: { redirect: "follow" }
     });
 
@@ -70,9 +70,14 @@ async function uploadToVirtuoso(quads, url, graphName, type) {
     const gspUrl = `${url}?graph=${encodeURIComponent(graphName)}`;
     
     //console.log(`Sending data to Virtuoso GSP: ${gspUrl}`);
+    // --- ADDED: CLEAR THE SPECIFIC GRAPH FIRST ---
+    // This ensures no old data remains in this specific graph
+    await fetch(gspUrl, { method: 'DELETE' });
+    console.log(`Cleared Virtuoso graph: ${graphName}`);
+
 
     const response = await fetch(gspUrl, {
-      method: 'PUT', 
+      method: 'POST', 
       headers: { 
         'Content-Type': 'application/n-triples', 
       },

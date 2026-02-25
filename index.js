@@ -23,7 +23,7 @@ import {RiverDischarge1YearLDESqueryALL,RiverStage1YearLDESqueryALL} from './con
 import {RiverDischarge1YearTSSqueryALL,RiverStage1YearTSSqueryALL} from './constants/LDESTSSquery.js'
 import {RiverDischarge1YearTTLqueryOxigraphALL,RiverStage1YearTTLqueryOxigraphALL,RiverDischarge1YearTTLqueryVirtuosoALL,RiverStage1YearTTLqueryVirtuosoALL} from './constants/TTLquery.js'
 //---------------------------------------------------------------
-import {VIRTUOSO_GRAPH_TTL,VIRTUOSO_GRAPH_LDES,Virtuoso_GRAPH_LDESTSS} from './constants/constants.js'
+import {name_GRAPH_TTL,name_GRAPH_LDES,name_GRAPH_LDESTSS} from './constants/constants.js'
 
 //---------------------------------------------------------------
 const app = express();
@@ -335,12 +335,12 @@ const ingestionTaskPromises = [
         ),
         // 2: Virtuoso LDES
         runIngest("LDES Virtuoso", 
-            VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDES, "LDES", VIRTUOSO_GRAPH_LDES),
+            VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDES, "LDES", name_GRAPH_LDES),
             (t) => virtuosoLDES_ingest_time = t
         ),
         // 3: Virtuoso LDESTSS
         runIngest("LDESTSS Virtuoso", 
-            VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDESTSS, "LDESTSS", Virtuoso_GRAPH_LDESTSS),
+            VirtuosoHandler("http://localhost:8890/sparql-graph-crud", data_url_LDESTSS, "LDESTSS", name_GRAPH_LDESTSS),
             (t) => virtuosoLDESTSS_ingest_time = t
         ),
         // 4: TTL Oxigraph
@@ -350,7 +350,7 @@ const ingestionTaskPromises = [
         ),
         // 5: TTL Virtuoso
         runIngest("TTL Virtuoso", 
-            VirtuosoTTLHandler("http://localhost:8890/sparql-graph-crud", data_url_TTL, "TTL", VIRTUOSO_GRAPH_TTL),
+            VirtuosoTTLHandler("http://localhost:8890/sparql-graph-crud", data_url_TTL, "TTL", name_GRAPH_TTL),
             (t) => virtuosoTTL_ingest_time = t
         ),
         // 6: Postgres CSV

@@ -325,12 +325,12 @@ const runIngest = async (name, handlerPromise, timeVarSetter) => {
 const ingestionTaskPromises = [
         // 0: Oxigraph LDESTSS
         runIngest("LDESTSS Oxigraph", 
-            OxigraphHandler(OXIGRAPH_BASE_URL_LDESTSS, data_url_LDESTSS, "LDESTSS", 7878), 
+            OxigraphHandler(OXIGRAPH_BASE_URL_LDESTSS, data_url_LDESTSS, "LDESTSS", 7878,name_GRAPH_LDESTSS), 
             (t) => oxigraphLDESTSS_ingest_time = t
         ),
         // 1: Oxigraph LDES
         runIngest("LDES Oxigraph", 
-            OxigraphHandler(OXIGRAPH_BASE_URL_LDES, data_url_LDES, "LDES", 7879),
+            OxigraphHandler(OXIGRAPH_BASE_URL_LDES, data_url_LDES, "LDES", 7879,name_GRAPH_LDES),
             (t) => oxigraphLDES_ingest_time = t
         ),
         // 2: Virtuoso LDES

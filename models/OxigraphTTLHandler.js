@@ -1,88 +1,68 @@
-import { Parser, Writer } from "n3";
+import { Parser, Writer, DataFactory } from "n3";
+const { namedNode } = DataFactory;
 
-export async function OxigraphTTLHandler(OXIGRAPH_URL, fileUrl, type, portno) {
+export async function OxigraphTTLHandler(OXIGRAPH_URL, fileUrl, type, portno, graphName) {
   console.log(`Starting ${type} Service: Fetching TTL from URL...`);
   const allQuads = [];
 
   try {
-    // 1. Clear existing data in Oxigraph
-    await fetch(OXIGRAPH_URL, { method: 'DELETE' });
-    console.log(`${type} Oxigraph store cleared on port ${portno}.`);
+    // 1. Clear existing data in the specific graph in Oxigraph
+    const deleteUrl = `${OXIGRAPH_URL.endsWith('/') ? OXIGRAPH_URL : OXIGRAPH_URL + '/'}store?graph=${encodeURIComponent(graphName)}`;
+    await fetch(deleteUrl, { method: 'DELETE' });
+    console.log(`${type} Oxigraph graph ${graphName} cleared.`);
 
-    // 2. Fetch the Turtle file from the URL
     const response = await fetch(fileUrl);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch TTL file: ${response.statusText}`);
-    }
+    if (!response.ok) throw new Error(`Failed to fetch TTL file: ${response.statusText}`);
     const ttlData = await response.text();
 
-    // 3. Parse the Turtle data
     const parser = new Parser({ format: 'Turtle' });
 
     await new Promise((resolve, reject) => {
       parser.parse(ttlData, (error, quad) => {
         if (error) reject(error);
         if (quad) {
-          allQuads.push(quad);
+          // Force the quad into the specified named graph
+          allQuads.push(DataFactory.quad(quad.subject, quad.predicate, quad.object, namedNode(graphName)));
         } else {
           resolve();
         }
       });
     });
 
-    // 4. Perform the upload and count unique objects
     if (allQuads.length > 0) {
-      // Logic to count unique subjects (entities)
       const uniqueSubjects = new Set(allQuads.map(q => q.subject.value));
       const objectCount = uniqueSubjects.size;
 
-      console.log(`Found ${objectCount} unique objects (from ${allQuads.length} total quads)`);
-      console.log(`Uploading to ${type} Oxigraph`);
+      console.log(`Uploading to ${type} Oxigraph graph: ${graphName}`);
+      // Use N-Quads to preserve the graph information
+      await uploadToOxigraph(allQuads, OXIGRAPH_URL, graphName);
       
-      await uploadToOxigraph(allQuads, OXIGRAPH_URL, type);
-      console.log(`${type} upload successful.`);
-console.log(`object count: ${objectCount}`);
-      // Return the count for benchmarking
       return objectCount;
-    } else {
-      console.log("No data found in the fetched TTL file.");
-      return 0;
     }
-
+    return 0;
   } catch (error) {
     console.error(`Error in ${type} Service:`, error);
     throw error;
   }
 }
 
-async function uploadToOxigraph(quads, url, type) {
-  try {
-    const writer = new Writer({ format: 'N-Triples' });
-    writer.addQuads(quads);
+async function uploadToOxigraph(quads, url, graphName) {
+  const writer = new Writer({ format: 'N-Quads' }); // Use N-Quads for named graphs
+  writer.addQuads(quads);
 
-    const nTriples = await new Promise((resolve, reject) => {
-      writer.end((error, result) => {
-        if (error) reject(error);
-        else resolve(result);
-      });
+  const nQuads = await new Promise((resolve, reject) => {
+    writer.end((error, result) => {
+      if (error) reject(error);
+      else resolve(result);
     });
+  });
 
-    // CHANGE: Append 'store' to the URL if it's not already there
-    // Or ensure the URL in constants.js ends correctly.
-    const uploadUrl = url.endsWith('/') ? `${url}store` : `${url}/store`;
+  const uploadUrl = url.endsWith('/') ? `${url}store` : `${url}/store`;
+  const response = await fetch(uploadUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/n-quads' },
+    body: nQuads
+  });
 
-    const response = await fetch(uploadUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/n-triples' },
-      body: nTriples
-    });
-
-    if (!response.ok) {
-      const errorBody = await response.text();
-      throw new Error(`Oxigraph upload failed: ${response.statusText} - ${errorBody}`);
-    }
-  } catch (err) {
-    console.error(`Error uploading to Oxigraph:`, err);
-    throw err;
-  }
+  if (!response.ok) throw new Error(`Oxigraph upload failed: ${await response.text()}`);
 }

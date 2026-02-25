@@ -345,7 +345,7 @@ const ingestionTaskPromises = [
         ),
         // 4: TTL Oxigraph
         runIngest("TTL Oxigraph", 
-            OxigraphTTLHandler(OXIGRAPH_BASE_URL_TTL, data_url_TTL, "TTL", 7877),
+            OxigraphTTLHandler(OXIGRAPH_BASE_URL_TTL, data_url_TTL, "TTL", 7877,name_GRAPH_TTL),
             (t) => oxigraphTTL_ingest_time = t
         ),
         // 5: TTL Virtuoso

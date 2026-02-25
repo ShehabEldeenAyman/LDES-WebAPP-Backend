@@ -1,3 +1,5 @@
+import { name_GRAPH_TTL } from './constants.js';
+
 export const RiverDischarge1YearTTLqueryVirtuoso = (limit, offset) =>`
   PREFIX sosa: <http://www.w3.org/ns/sosa/>
   PREFIX ex: <http://example.com/ns#>
@@ -5,14 +7,16 @@ export const RiverDischarge1YearTTLqueryVirtuoso = (limit, offset) =>`
 
   SELECT ?subject ?value ?time ?runoffvalue
   WHERE {
+  GRAPH <${name_GRAPH_TTL}> { 
       ?subject a sosa:Observation ;
                sosa:observedProperty "River Discharge" ;
                sosa:hasSimpleResult ?value ;
                sosa:resultTime ?time ;
                ex:runoffValue ?runoffvalue .
       
-    FILTER (?time >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?time < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+    FILTER (?time >= "2025-01-01T00:00:00"^^xsd:dateTime && 
+            ?time < "2026-01-01T00:00:00"^^xsd:dateTime)
+ }
   }
   ORDER BY DESC(?time)
   LIMIT ${limit}
@@ -25,14 +29,16 @@ export const RiverStage1YearTTLqueryVirtuoso = (limit, offset) =>`
 
   SELECT ?subject ?value ?time  
   WHERE {
+      GRAPH <${name_GRAPH_TTL}> { 
+
       ?subject a sosa:Observation ;
                sosa:observedProperty "River Stage" ;
                sosa:hasSimpleResult ?value ;
                sosa:resultTime ?time .
                
-    FILTER (?time >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?time < "2026-01-01T00:00:00Z"^^xsd:dateTime)
-  }
+    FILTER (?time >= "2025-01-01T00:00:00"^^xsd:dateTime && 
+            ?time < "2026-01-01T00:00:00"^^xsd:dateTime)
+  }}
   ORDER BY DESC(?time)
   LIMIT ${limit}
   OFFSET ${offset}
@@ -45,7 +51,7 @@ export const RiverDischarge1YearTTLqueryOxigraph = (limit, offset) =>`
 
   SELECT ?subject ?value ?time ?runoffvalue
   WHERE {
-    GRAPH ?g {
+    GRAPH <${name_GRAPH_TTL}> {
       ?subject a sosa:Observation ;
                sosa:observedProperty "River Discharge" ;
                sosa:hasSimpleResult ?value ;
@@ -53,8 +59,8 @@ export const RiverDischarge1YearTTLqueryOxigraph = (limit, offset) =>`
       
       OPTIONAL { ?subject ex:runoffValue ?runoffvalue . }
       
-    FILTER (?time >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?time < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+    FILTER (?time >= "2025-01-01T00:00:00"^^xsd:dateTime && 
+            ?time < "2026-01-01T00:00:00"^^xsd:dateTime)
     }
   }
   ORDER BY DESC(?time)
@@ -68,14 +74,14 @@ export const RiverStage1YearTTLqueryOxigraph = (limit, offset) =>`
 
   SELECT ?subject ?value ?time  
   WHERE {
-    GRAPH ?g {
+    GRAPH <${name_GRAPH_TTL}> {
       ?subject a sosa:Observation ;
                sosa:observedProperty "River Stage" ;
                sosa:hasSimpleResult ?value ;
                sosa:resultTime ?time .
                
-    FILTER (?time >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?time < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+    FILTER (?time >= "2025-01-01T00:00:00"^^xsd:dateTime && 
+            ?time < "2026-01-01T00:00:00"^^xsd:dateTime)
     }
   }
   ORDER BY DESC(?time)
@@ -91,6 +97,7 @@ export const RiverDischarge1YearTTLqueryVirtuosoALL = () =>`
 
   SELECT ?subject ?value ?time ?runoffvalue
   WHERE {
+  GRAPH <${name_GRAPH_TTL}> {
       ?subject a sosa:Observation ;
                sosa:observedProperty "River Discharge" ;
                sosa:hasSimpleResult ?value ;
@@ -98,9 +105,9 @@ export const RiverDischarge1YearTTLqueryVirtuosoALL = () =>`
       
       OPTIONAL { ?subject ex:runoffValue ?runoffvalue . }
 
-    FILTER (?time >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?time < "2026-01-01T00:00:00Z"^^xsd:dateTime)
-  }
+    FILTER (?time >= "2025-01-01T00:00:00"^^xsd:dateTime && 
+            ?time < "2026-01-01T00:00:00"^^xsd:dateTime)
+  }}
   ORDER BY DESC(?time)
 
 `;
@@ -111,14 +118,15 @@ export const RiverStage1YearTTLqueryVirtuosoALL = () =>`
 
   SELECT ?subject ?value ?time  
   WHERE {
+  GRAPH <${name_GRAPH_TTL}> {
       ?subject a sosa:Observation ;
                sosa:observedProperty "River Stage" ;
                sosa:hasSimpleResult ?value ;
                sosa:resultTime ?time .
                
-    FILTER (?time >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?time < "2026-01-01T00:00:00Z"^^xsd:dateTime)
-  }
+    FILTER (?time >= "2025-01-01T00:00:00"^^xsd:dateTime && 
+            ?time < "2026-01-01T00:00:00"^^xsd:dateTime)
+  }}
   ORDER BY DESC(?time)
 
 `;
@@ -130,7 +138,7 @@ export const RiverDischarge1YearTTLqueryOxigraphALL = () =>`
 
   SELECT ?subject ?value ?time ?runoffvalue
   WHERE {
-    GRAPH ?g {
+    GRAPH <${name_GRAPH_TTL}> {
       ?subject a sosa:Observation ;
                sosa:observedProperty "River Discharge" ;
                sosa:hasSimpleResult ?value ;
@@ -138,8 +146,8 @@ export const RiverDischarge1YearTTLqueryOxigraphALL = () =>`
       
       OPTIONAL { ?subject ex:runoffValue ?runoffvalue . }
       
-    FILTER (?time >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?time < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+    FILTER (?time >= "2025-01-01T00:00:00"^^xsd:dateTime && 
+            ?time < "2026-01-01T00:00:00"^^xsd:dateTime)
     }
   }
   ORDER BY DESC(?time)
@@ -152,14 +160,14 @@ export const RiverStage1YearTTLqueryOxigraphALL = () =>`
 
   SELECT ?subject ?value ?time  
   WHERE {
-    GRAPH ?g {
+    GRAPH <${name_GRAPH_TTL}> {
       ?subject a sosa:Observation ;
                sosa:observedProperty "River Stage" ;
                sosa:hasSimpleResult ?value ;
                sosa:resultTime ?time .
                
-    FILTER (?time >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?time < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+    FILTER (?time >= "2025-01-01T00:00:00"^^xsd:dateTime && 
+            ?time < "2026-01-01T00:00:00"^^xsd:dateTime)
     }
   }
   ORDER BY DESC(?time)

@@ -364,7 +364,19 @@ const ingestionTaskPromises = [
         console.log("Waiting for ingestion to complete...");
         
         // WAIT for the actual tasks to finish
-        const results = await Promise.all(ingestionTaskPromises);
+        //const results = await Promise.all(ingestionTaskPromises);
+        const outcomes = await Promise.allSettled(ingestionTaskPromises);
+
+// Map the outcomes back to a results array to keep your existing logic compatible
+const results = outcomes.map(outcome => {
+  if (outcome.status === 'fulfilled') {
+    return outcome.value; // The objectCount returned by your handlers
+  } else {
+    console.error("Task failed:", outcome.reason);
+    return 0; // Or null/error object, depending on how results are used
+  }
+});
+
         // for (const taskPromise of ingestionTaskPromises) {
         //     await taskPromise; // We await each one to ensure they finish and set their respective time variables
         // }

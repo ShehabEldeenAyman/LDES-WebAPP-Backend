@@ -78,7 +78,7 @@ try {
     });
 
     const response = await fetch(gspUrl, {      
-      method: 'PUT', // Use PUT to replace the graph content
+      method: 'POST', // Use PUT to replace the graph content
       headers: { 'Content-Type': 'application/n-triples' },
       body: nTriples
     });

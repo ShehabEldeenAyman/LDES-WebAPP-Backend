@@ -94,9 +94,10 @@ export const RiverDischarge1YearTTLqueryVirtuosoALL = () =>`
       ?subject a sosa:Observation ;
                sosa:observedProperty "River Discharge" ;
                sosa:hasSimpleResult ?value ;
-               sosa:resultTime ?time ;
-               ex:runoffValue ?runoffvalue .
+               sosa:resultTime ?time .
       
+      OPTIONAL { ?subject ex:runoffValue ?runoffvalue . }
+
     FILTER (?time >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
             ?time < "2026-01-01T00:00:00Z"^^xsd:dateTime)
   }

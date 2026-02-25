@@ -16,8 +16,8 @@ export const RiverDischarge1YearLDESquery = (limit, offset) => `
                    sosa:hasSimpleResult ?value ;
                    sosa:resultTime ?time ;
                    ex:runoffValue ?runoffvalue .
-    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+    FILTER (?time >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?time < "2026-01-01T00:00:00Z"^^xsd:dateTime)
         }
       }
       ORDER BY DESC(?time)
@@ -37,8 +37,8 @@ export const RiverStage1YearLDESquery = (limit, offset) => `
           ?subject sosa:observedProperty "River Stage" ;
                    sosa:hasSimpleResult ?value ;
                    sosa:resultTime ?time .
-    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+    FILTER (?time >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?time < "2026-01-01T00:00:00Z"^^xsd:dateTime)
         }
       }
       ORDER BY DESC(?time)
@@ -60,8 +60,8 @@ export const RiverDischarge1YearLDESqueryALL = () => `
                    sosa:hasSimpleResult ?value ;
                    sosa:resultTime ?time ;
                    ex:runoffValue ?runoffvalue .
-    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+    FILTER (?time >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?time < "2026-01-01T00:00:00Z"^^xsd:dateTime)
         }
       }
       ORDER BY DESC(?time)
@@ -79,8 +79,8 @@ export const RiverDischarge1YearLDESqueryALL = () => `
           ?subject sosa:observedProperty "River Stage" ;
                    sosa:hasSimpleResult ?value ;
                    sosa:resultTime ?time .
-    FILTER (?from >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
-            ?from < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+    FILTER (?time >= "2025-01-01T00:00:00Z"^^xsd:dateTime && 
+            ?time < "2026-01-01T00:00:00Z"^^xsd:dateTime)
         }
       }
       ORDER BY DESC(?time)

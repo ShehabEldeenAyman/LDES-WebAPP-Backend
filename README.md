@@ -10,6 +10,9 @@ Oxigraph:
 
 Virtuoso: Virtuoso Services Control
 sudo systemctl start virtuoso-opensource
+sudo systemctl start virtuoso-opensource-7
+sudo systemctl status virtuoso-opensource-7
+
 
 Postgres: PG Admin
 sudo systemctl start postgresql
@@ -18,5 +21,7 @@ Redis:(WSL)
 sudo service redis-server start
 
 Backend:
-
 npm run dev
+
+Ngrok:
+ngrok http [port_number]

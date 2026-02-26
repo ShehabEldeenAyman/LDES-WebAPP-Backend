@@ -27,7 +27,7 @@ export async function ingestBenchmarks(req, res, oxigraphLDESTSS_time, oxigraphL
 }
 
 
-export async function recallBenchmarks(req, res,oxigraphLDES_recall_time, virtuosoLDES_recall_time, oxigraphLDESTSS_recall_time, virtuosoLDESTSS_recall_time,oxigraphTTL_recall_time,virtuosoTTL_recall_time) {
+export async function recallBenchmarks(req, res,oxigraphLDES_recall_time, virtuosoLDES_recall_time, oxigraphLDESTSS_recall_time, virtuosoLDESTSS_recall_time,oxigraphTTL_recall_time,virtuosoTTL_recall_time,postgresCSV_recall_time) {
     try {
         // Validation: Ensure the benchmark times are actually provided
         // if (oxigraphLDES_time === undefined || virtuosoLDES_time === undefined || oxigraphLDESTSS_time === undefined || virtuosoLDESTSS_time === undefined || oxigraphTTL_time === undefined) {
@@ -41,6 +41,7 @@ export async function recallBenchmarks(req, res,oxigraphLDES_recall_time, virtuo
             virtuoso_standard_ldes: virtuosoLDES_recall_time,
             oxigraph_ttl: oxigraphTTL_recall_time,
             virtuoso_ttl: virtuosoTTL_recall_time,
+            postgres_csv_recall: postgresCSV_recall_time
             //postgres_csv_ingestion: postgresCSV_time
 
         });

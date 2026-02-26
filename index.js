@@ -17,7 +17,7 @@ import {RiverDischarge1YearTTLqueryVirtuoso,RiverStage1YearTTLqueryVirtuoso,Rive
 import { ttlOxigraphRoute } from './routes/ttlOxigraphRoute.js';
 import { cacheMiddleware } from './cache.js';
 import { postgresHandler } from './models/PostgresHandler.js';
-import { csvPostgresRoute } from './routes/csvPostgresRoute.js';
+import { csvPostgresRoute, runRecallPostgres } from './routes/csvPostgresRoute.js';
 //--------------------------------------------------------------- All Queries
 import {RiverDischarge1YearLDESqueryALL,RiverStage1YearLDESqueryALL} from './constants/LDESquery.js'
 import {RiverDischarge1YearTSSqueryALL,RiverStage1YearTSSqueryALL} from './constants/LDESTSSquery.js'
@@ -289,7 +289,7 @@ app.get('/ingestbenchmarks', (req, res) => {
   ingestBenchmarks(req, res, oxigraphLDESTSS_ingest_time, oxigraphLDES_ingest_time, virtuosoLDESTSS_ingest_time, virtuosoLDES_ingest_time,oxigraphTTL_ingest_time,virtuosoTTL_ingest_time,postgresCSV_ingest_time);
 });
 app.get('/recallbenchmarks', (req, res) => {
-  recallBenchmarks(req, res, oxigraphLDESTSS_recall_time, oxigraphLDES_recall_time, virtuosoLDESTSS_recall_time, virtuosoLDES_recall_time,oxigraphTTL_recall_time,virtuosoTTL_recall_time);
+  recallBenchmarks(req, res, oxigraphLDESTSS_recall_time, oxigraphLDES_recall_time, virtuosoLDESTSS_recall_time, virtuosoLDES_recall_time,oxigraphTTL_recall_time,virtuosoTTL_recall_time,postgresCSV_recall_time);
 });
 
 app.get('/csv', (req, res) => {
@@ -485,7 +485,9 @@ const recallPromises = [
         RiverDischarge1YearTTLqueryOxigraphALL(), 
         OXIGRAPH_BASE_URL_TTL,
         (t) => oxigraphTTL_recall_time = t
-    )
+    ),
+
+    runRecallPostgres("Postgres CSV", (t) => postgresCSV_recall_time = t),
 ];
 
 try {

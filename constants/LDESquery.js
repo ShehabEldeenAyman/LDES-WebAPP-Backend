@@ -12,7 +12,7 @@ export const RiverDischarge1YearLDESquery = (limit, offset) => `
 
       SELECT ?subject ?value ?time ?runoffvalue
       WHERE {
-        GRAPH GRAPH <${name_GRAPH_LDES}> {
+        GRAPH <${name_GRAPH_LDES}> {
           ?subject sosa:observedProperty "River Discharge" ;
                    sosa:hasSimpleResult ?value ;
                    sosa:resultTime ?time ;
